@@ -1,6 +1,6 @@
 ---
 title: "ClickHouse [Part 3] ETL & Data Ingestion: Feeding the Analytics Beast"
-date: 2025-08-03
+date: 2025-07-10
 description: "Master the art of getting data into ClickHouse efficiently, from simple batch loads to real-time streaming pipelines."
 tags: ["ClickHouse", "ETL", "Data Pipeline", "Kafka"]
 ---

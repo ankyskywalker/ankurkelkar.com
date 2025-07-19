@@ -1,6 +1,6 @@
 ---
 title: "ClickHouse [Part 4] Advanced Queries: Unleashing the Power Within"
-date: 2025-08-10
+date: 2025-07-14
 description: "Discover materialized views, window functions, array magic, and performance tricks that'll make your ClickHouse queries sing."
 tags: ["ClickHouse", "SQL", "Analytics", "Performance", "Advanced Queries"]
 ---

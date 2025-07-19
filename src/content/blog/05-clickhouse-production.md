@@ -1,6 +1,6 @@
 ---
 title: "ClickHouse [Part 5] In Production: Scaling Your Analytics Empire"
-date: 2025-08-17
+date: 2025-07-19
 description: "Master the final frontier - deploying, monitoring, securing, and scaling ClickHouse for enterprise-grade analytics that actually works in the real world."
 tags: ["ClickHouse", "Production", "Clustering", "Monitoring", "Security"]
 ---

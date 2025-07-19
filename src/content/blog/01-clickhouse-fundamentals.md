@@ -1,6 +1,6 @@
 ---
 title: "ClickHouse [Part 1] Fundamentals: Your Friendly Guide to the Speed Demon"
-date: 2025-07-20
+date: 2025-07-01
 description: "Let's dive into ClickHouse together - no intimidating jargon, just a warm welcome to your new favorite database."
 tags: ["ClickHouse", "OLAP", "Getting Started"]
 ---
