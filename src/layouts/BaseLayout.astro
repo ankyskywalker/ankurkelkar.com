@@ -16,6 +16,8 @@ const { title = "Ankur Kelkar – Data & Analytics Engineer" } = Astro.props;
   <body class="bg-gradient-to-br from-[#120026] via-[#0f172a] to-[#2a003f] text-gray-100 antialiased flex flex-col min-h-screen">
     <Header />
     <main class="flex-grow">
+    <div class="fixed inset-0 opacity-20 bg-[url('/grid.svg')] animate-pulse bg-repeat bg-center"></div>
+    <div class="absolute inset-0 bg-gradient-to-tr from-black-900/30 via-transparent to-pink-900/30"></div>
       <slot />
     </main>
     <footer class="bg-[#181026]/70 backdrop-blur-sm py-6 mt-12">
