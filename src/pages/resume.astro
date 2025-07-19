@@ -1,0 +1,449 @@
+---
+import '../styles/global.css';
+import ResumeLayout from '../layouts/ResumeLayout.astro';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
+---
+
+<ResumeLayout title="Ankur Kelkar – Resume">
+  <div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header Card -->
+    <Card class="bg-gray-900/50 backdrop-blur-sm border-gray-700">
+      <CardHeader class="text-center pb-6">
+        <CardTitle class="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          Ankur Kelkar
+        </CardTitle>
+        <CardDescription class="text-xl text-blue-400 font-semibold mt-2">
+          Data Engineer & Analytics Architect
+        </CardDescription>
+        <div class="mt-4 space-y-2 text-gray-300">
+          <p class="text-lg font-medium">Pune, India</p>
+          <div class="flex flex-wrap justify-center items-center gap-2 text-sm">
+            <a href="mailto:ankur.kelkar@gmail.com" class="text-purple-400 hover:text-purple-300 transition-colors">
+              ankur.kelkar@gmail.com
+            </a>
+            <span class="text-purple-400">•</span>
+            <a href="tel:+919601702886" class="text-purple-400 hover:text-purple-300 transition-colors">
+              +91 96017 02886
+            </a>
+          </div>
+          <div class="flex flex-wrap justify-center items-center gap-2 text-sm">
+            <a href="https://linkedin.com/in/ankurkelkar" target="_blank" rel="noopener" 
+               class="text-purple-400 hover:text-purple-300 transition-colors">
+              LinkedIn
+            </a>
+            <span class="text-purple-400">•</span>
+            <a href="https://twitter.com/ankyskywalker" target="_blank" rel="noopener" 
+               class="text-purple-400 hover:text-purple-300 transition-colors">
+              Twitter @ankyskywalker
+            </a>
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
+
+    <!-- Profile Section -->
+    <Card class="bg-gray-900/50 backdrop-blur-sm border-gray-700">
+      <CardHeader>
+        <CardTitle class="text-white">Profile</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p class="text-gray-300 leading-relaxed">
+          Experienced Data Engineer with 10+ years in Travel Tech, Marketing Technology & Healthcare IT. 
+          Skilled in BI strategies, architectural transformation, and cost optimization. Expertise in 
+          Snowflake, dbt, Terraform, AWS, Python, and BI tools.
+        </p>
+      </CardContent>
+    </Card>
+
+    <!-- Employment History -->
+    <Card class="bg-gray-900/50 backdrop-blur-sm border-gray-700">
+      <CardHeader>
+        <CardTitle class="text-white">Employment History</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-6">
+        <!-- Senior Lead Engineer -->
+        <div class="border-b border-gray-600 pb-6 last:border-b-0 last:pb-0">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-xl font-semibold text-purple-400">Senior Lead Engineer</h3>
+            <Badge variant="outline" class="border-purple-400 text-purple-400 mt-1 sm:mt-0">
+              Jan 2023 – Present
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-3">Kipi.bi (Remote)</p>
+          <ul class="space-y-2 text-gray-300 text-sm leading-relaxed">
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Designed and implemented ETL/ELT pipelines using Python, SQL, and automated CI/CD.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Developed reusable data extraction pipelines with AWS S3, Lambda, SQS, SNS, EventBridge, CodeCommit.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Built data load & transformation pipelines using Snowflake stored procedures & tasks.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Optimized data models for BI and ML use cases.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Analytics Engineer -->
+        <div class="border-b border-gray-600 pb-6 last:border-b-0 last:pb-0">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-xl font-semibold text-purple-400">Analytics Engineer</h3>
+            <Badge variant="outline" class="border-purple-400 text-purple-400 mt-1 sm:mt-0">
+              Feb 2022 – Dec 2023
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-3">Vio.com (Remote)</p>
+          <ul class="space-y-2 text-gray-300 text-sm leading-relaxed">
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Modeled terabyte-scale data in dbt across 15+ projects.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Led Data Mesh Architecture transformation: restructured dbt projects, defined standards, trained teams.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Achieved €3,000/mo cost savings by optimizing Snowflake/dbt pipelines; reduced processing time by 30%.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Enhanced Looker reports with Aggregate Awareness, PDTs, parameterized tables.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Automated invoice ingestion, improving data accuracy by 40%.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Sr. Data Analyst -->
+        <div class="border-b border-gray-600 pb-6 last:border-b-0 last:pb-0">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-xl font-semibold text-purple-400">Sr. Data Analyst</h3>
+            <Badge variant="outline" class="border-purple-400 text-purple-400 mt-1 sm:mt-0">
+              Feb 2020 – Jan 2022
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-3">Demandbase Data Cloud (Pune)</p>
+          <ul class="space-y-2 text-gray-300 text-sm leading-relaxed">
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Led a team of 3 analysts serving Fortune 500 clients with technographic & firmographic insights.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Built AWS Athena/Presto pipelines in Python; visualized data in Power BI.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Managed SCRUM sprints via Jira.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Sr. SQL Developer -->
+        <div class="border-b border-gray-600 pb-6 last:border-b-0 last:pb-0">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-xl font-semibold text-purple-400">Sr. SQL Developer</h3>
+            <Badge variant="outline" class="border-purple-400 text-purple-400 mt-1 sm:mt-0">
+              Sep 2019 – Feb 2020
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-3">Radamatic Solutions Pvt. Ltd. (Pune)</p>
+          <ul class="space-y-2 text-gray-300 text-sm leading-relaxed">
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Optimized SQL Server stored procedures.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Migrated data from Azure SQL DW to Snowflake.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Sr. System Analyst -->
+        <div class="border-b border-gray-600 pb-6 last:border-b-0 last:pb-0">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-xl font-semibold text-purple-400">Sr. System Analyst</h3>
+            <Badge variant="outline" class="border-purple-400 text-purple-400 mt-1 sm:mt-0">
+              Sep 2017 – Sep 2019
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-3">Allscripts Healthcare Solutions (Vadodara)</p>
+          <ul class="space-y-2 text-gray-300 text-sm leading-relaxed">
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Led 8 analysts on BI & HL7 integration projects for ambulatory care clients.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Planned and managed project timelines, resources, and KPIs.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Mentored team on Allscripts EEHR/PM and HL7 engines (ConnectR, Rhapsody, eLink).</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- System Analyst -->
+        <div class="border-b border-gray-600 pb-6 last:border-b-0 last:pb-0">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-xl font-semibold text-purple-400">System Analyst</h3>
+            <Badge variant="outline" class="border-purple-400 text-purple-400 mt-1 sm:mt-0">
+              Mar 2016 – Sep 2017
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-3">Allscripts Healthcare Solutions (Vadodara)</p>
+          <ul class="space-y-2 text-gray-300 text-sm leading-relaxed">
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Planned and executed clinical data migration from Allscripts EEHR to EPIC.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Built data warehouse and HL7 interfaces for CCD workflows.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Led a team creating CCD documents.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Associate Systems Analyst -->
+        <div class="border-b border-gray-600 pb-6 last:border-b-0 last:pb-0">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-xl font-semibold text-purple-400">Associate Systems Analyst</h3>
+            <Badge variant="outline" class="border-purple-400 text-purple-400 mt-1 sm:mt-0">
+              Jan 2014 – Mar 2016
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-3">Allscripts Healthcare Solutions (Vadodara)</p>
+          <ul class="space-y-2 text-gray-300 text-sm leading-relaxed">
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Developed DW and procedures for clinical data migration.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Optimized SSRS reports by removing unnecessary joins/columns.</span>
+            </li>
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Created SSRS suite for SCCM & SolarWinds data extraction.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Lead Developer -->
+        <div class="border-b border-gray-600 pb-6 last:border-b-0 last:pb-0">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-xl font-semibold text-purple-400">Lead Developer</h3>
+            <Badge variant="outline" class="border-purple-400 text-purple-400 mt-1 sm:mt-0">
+              Jun 2013 – Jan 2014
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-3">Kiren Solutions (Vadodara)</p>
+          <ul class="space-y-2 text-gray-300 text-sm leading-relaxed">
+            <li class="flex items-start">
+              <span class="text-purple-400 mr-2 mt-1">•</span>
+              <span>Led PhoneGap mobile app development using jQuery, Dojo, Foundation, MySQL, SQLite.</span>
+            </li>
+          </ul>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Education -->
+    <Card class="bg-gray-900/50 backdrop-blur-sm border-gray-700">
+      <CardHeader>
+        <CardTitle class="text-white">Education</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4">
+        <div class="border-b border-gray-600 pb-4 last:border-b-0 last:pb-0">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-lg font-semibold text-purple-400">MCA</h3>
+            <Badge variant="secondary" class="bg-gray-800 text-gray-300 mt-1 sm:mt-0">
+              2010 – 2013
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-1">Sardar Vallabhbhai Patel Institute of Technology</p>
+          <p class="text-gray-400 text-sm">CPI: 8.01</p>
+        </div>
+        <div>
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2">
+            <h3 class="text-lg font-semibold text-purple-400">BCA</h3>
+            <Badge variant="secondary" class="bg-gray-800 text-gray-300 mt-1 sm:mt-0">
+              2007 – 2010
+            </Badge>
+          </div>
+          <p class="text-white font-medium mb-1">The Maharaja Sayajirao University of Baroda</p>
+          <p class="text-gray-400 text-sm">58%</p>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Certifications -->
+    <Card class="bg-gray-900/50 backdrop-blur-sm border-gray-700">
+      <CardHeader>
+        <CardTitle class="text-white">Certifications</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div class="flex items-start">
+          <span class="text-purple-400 mr-2 mt-1">•</span>
+          <span class="text-gray-300">Professional Scrum Master I (PSM I), Scrum.org</span>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Skills -->
+    <Card class="bg-gray-900/50 backdrop-blur-sm border-gray-700">
+      <CardHeader>
+        <CardTitle class="text-white">Skills</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4">
+        <div>
+          <h4 class="text-purple-400 font-semibold mb-2">Languages & Tools:</h4>
+          <div class="flex flex-wrap gap-2">
+            <Badge variant="secondary" class="bg-blue-900/50 text-blue-300 border-blue-700">SQL</Badge>
+            <Badge variant="secondary" class="bg-blue-900/50 text-blue-300 border-blue-700">T-SQL</Badge>
+            <Badge variant="secondary" class="bg-yellow-900/50 text-yellow-300 border-yellow-700">Python</Badge>
+            <Badge variant="secondary" class="bg-purple-900/50 text-purple-300 border-purple-700">dbt</Badge>
+            <Badge variant="secondary" class="bg-green-900/50 text-green-300 border-green-700">SSIS</Badge>
+            <Badge variant="secondary" class="bg-orange-900/50 text-orange-300 border-orange-700">AWS Glue</Badge>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-purple-400 font-semibold mb-2">Cloud & DW:</h4>
+          <div class="flex flex-wrap gap-2">
+            <Badge variant="secondary" class="bg-blue-900/50 text-blue-300 border-blue-700">Snowflake</Badge>
+            <Badge variant="secondary" class="bg-orange-900/50 text-orange-300 border-orange-700">AWS Athena</Badge>
+            <Badge variant="secondary" class="bg-orange-900/50 text-orange-300 border-orange-700">S3</Badge>
+            <Badge variant="secondary" class="bg-blue-900/50 text-blue-300 border-blue-700">Azure Blob</Badge>
+            <Badge variant="secondary" class="bg-red-900/50 text-red-300 border-red-700">GCP</Badge>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-purple-400 font-semibold mb-2">Databases:</h4>
+          <div class="flex flex-wrap gap-2">
+            <Badge variant="secondary" class="bg-blue-900/50 text-blue-300 border-blue-700">SQL Server</Badge>
+            <Badge variant="secondary" class="bg-blue-900/50 text-blue-300 border-blue-700">PostgreSQL</Badge>
+            <Badge variant="secondary" class="bg-orange-900/50 text-orange-300 border-orange-700">MySQL</Badge>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-purple-400 font-semibold mb-2">BI & Visualization:</h4>
+          <div class="flex flex-wrap gap-2">
+            <Badge variant="secondary" class="bg-green-900/50 text-green-300 border-green-700">Looker</Badge>
+            <Badge variant="secondary" class="bg-yellow-900/50 text-yellow-300 border-yellow-700">Power BI</Badge>
+            <Badge variant="secondary" class="bg-blue-900/50 text-blue-300 border-blue-700">SSRS</Badge>
+            <Badge variant="secondary" class="bg-orange-900/50 text-orange-300 border-orange-700">Tableau</Badge>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-purple-400 font-semibold mb-2">CI/CD & Infra:</h4>
+          <div class="flex flex-wrap gap-2">
+            <Badge variant="secondary" class="bg-purple-900/50 text-purple-300 border-purple-700">Terraform</Badge>
+            <Badge variant="secondary" class="bg-gray-700/50 text-gray-300 border-gray-600">Git</Badge>
+            <Badge variant="secondary" class="bg-orange-900/50 text-orange-300 border-orange-700">AWS CodeCommit</Badge>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-purple-400 font-semibold mb-2">Methodologies:</h4>
+          <div class="flex flex-wrap gap-2">
+            <Badge variant="secondary" class="bg-indigo-900/50 text-indigo-300 border-indigo-700">Dimensional Modeling</Badge>
+            <Badge variant="secondary" class="bg-purple-900/50 text-purple-300 border-purple-700">Data Mesh</Badge>
+            <Badge variant="secondary" class="bg-green-900/50 text-green-300 border-green-700">ETL/ELT</Badge>
+            <Badge variant="secondary" class="bg-cyan-900/50 text-cyan-300 border-cyan-700">Analytics Engineering</Badge>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Domains & Interests -->
+    <Card class="bg-gray-900/50 backdrop-blur-sm border-gray-700">
+      <CardHeader>
+        <CardTitle class="text-white">Domains & Interests</CardTitle>
+      </CardHeader>
+      <CardContent class="space-y-4">
+        <div>
+          <h4 class="text-purple-400 font-semibold mb-2">Business Domains:</h4>
+          <div class="flex flex-wrap gap-2">
+            <Badge variant="outline" class="border-green-400 text-green-400">Healthcare</Badge>
+            <Badge variant="outline" class="border-blue-400 text-blue-400">Marketing Technology</Badge>
+            <Badge variant="outline" class="border-purple-400 text-purple-400">Travel Technology</Badge>
+            <Badge variant="outline" class="border-cyan-400 text-cyan-400">Modern Data Stack</Badge>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-purple-400 font-semibold mb-2">Interests:</h4>
+          <div class="flex flex-wrap gap-2">
+            <Badge variant="outline" class="border-orange-400 text-orange-400">Anime (Shonen, Seinen)</Badge>
+            <Badge variant="outline" class="border-red-400 text-red-400">RPG & Simulation Games</Badge>
+            <Badge variant="outline" class="border-yellow-400 text-yellow-400">Rock & Metal Music</Badge>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Soft Skills -->
+    <Card class="bg-gray-900/50 backdrop-blur-sm border-gray-700">
+      <CardHeader>
+        <CardTitle class="text-white">Soft Skills</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div class="flex flex-wrap gap-3">
+          <Badge class="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-4 py-2 text-sm">
+            Leadership
+          </Badge>
+          <Badge class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-4 py-2 text-sm">
+            Mentoring
+          </Badge>
+          <Badge class="bg-gradient-to-r from-green-600 to-green-700 text-white px-4 py-2 text-sm">
+            Scrum Facilitation
+          </Badge>
+          <Badge class="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-4 py-2 text-sm">
+            Critical Thinking
+          </Badge>
+          <Badge class="bg-gradient-to-r from-cyan-600 to-cyan-700 text-white px-4 py-2 text-sm">
+            Pragmatism
+          </Badge>
+          <Badge class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 py-2 text-sm">
+            Adaptability
+          </Badge>
+          <Badge class="bg-gradient-to-r from-pink-600 to-pink-700 text-white px-4 py-2 text-sm">
+            Communication
+          </Badge>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Back to Home -->
+    <div class="text-center pt-6">
+      <a href="/" class="inline-flex">
+        <Button size="lg" class="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-8 py-3 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="mr-2">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Back to Home
+        </Button>
+      </a>
+    </div>
+  </div>
+</ResumeLayout>
