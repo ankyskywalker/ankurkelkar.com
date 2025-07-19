@@ -1,102 +1,119 @@
 ---
-import "../styles/global.css";
 import BaseLayout from "../layouts/BaseLayout.astro";
-const title = "Ankur Kelkar – Resume";
+const pageTitle = "Ankur Kelkar – Resume";
 ---
-<BaseLayout title={title}>
-  <article class="prose prose-invert lg:prose-xl max-w-3xl mx-auto space-y-10">
-    <header class="text-center space-y-2">
-      <h1 class="text-4xl font-bold">Ankur Kelkar</h1>
-      <p class="text-gray-400">Analytics Engineer · Pune, India</p>
-      <div class="flex justify-center space-x-4 mt-2">
-        <a href="mailto:ankur.kelkar@gmail.com" class="text-indigo-400 hover:underline"
-          >ankur.kelkar@gmail.com</a
-        >
-        <a href="tel:+919601702886" class="text-indigo-400 hover:underline"
-          >+91 96017 02886</a
-        >
+<BaseLayout title={pageTitle}>
+  <div class="container mx-auto px-4 py-12">
+    <article class="prose prose-invert lg:prose-xl max-w-4xl mx-auto">
+      <!-- Header Card -->
+      <div class="bg-gradient-to-r from-slate-800/80 to-purple-900/80 backdrop-blur-md rounded-3xl p-8 mb-12 shadow-2xl border border-purple-500/20">
+        <header class="text-center space-y-4">
+          <h1 class="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 via-pink-300 to-yellow-100 mb-2">
+            Ankur Kelkar
+          </h1>
+          <p class="text-xl text-gray-300 font-semibold">Analytics Engineer · Pune, India</p>
+          
+          <div class="flex flex-wrap justify-center gap-4 mt-6">
+            <a href="mailto:ankur.kelkar@gmail.com" class="px-4 py-2 bg-indigo-600/30 rounded-full text-indigo-300 hover:bg-indigo-600/50 transition">
+              ankur.kelkar@gmail.com
+            </a>
+            <a href="tel:+919601702886" class="px-4 py-2 bg-pink-600/30 rounded-full text-pink-300 hover:bg-pink-600/50 transition">
+              +91 96017 02886
+            </a>
+          </div>
+          
+          <div class="flex justify-center space-x-8 mt-4">
+            <a href="https://linkedin.com/in/ankurkelkar" class="text-blue-400 hover:text-blue-300 font-semibold">LinkedIn</a>
+            <a href="https://twitter.com/ankyskywalker" class="text-cyan-400 hover:text-cyan-300 font-semibold">Twitter</a>
+          </div>
+        </header>
       </div>
-      <div class="flex justify-center space-x-6 mt-1 text-sm">
-        <a href="https://linkedin.com/in/ankurkelkar" class="hover:underline">LinkedIn</a>
-        <a href="https://twitter.com/ankyskywalker" class="hover:underline">Twitter</a>
-      </div>
-    </header>
 
-    <section>
-      <h2>Profile</h2>
-      <p>
-        Experienced Analytics Engineer with 10+ years in Travel Tech,
-        Marketing Technology &amp; Healthcare IT. Skilled in BI strategies,
-        architectural transformation, and cost optimization. Expertise in
-        Snowflake, dbt, Terraform, AWS services, Python, and BI tools.
-      </p>
-    </section>
+      <!-- Profile Section -->
+      <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 mb-8 shadow-xl border border-gray-700/30">
+        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-300 mb-4">
+          Profile
+        </h2>
+        <p class="text-gray-200 leading-relaxed text-lg">
+          Experienced Analytics Engineer with 10+ years in Travel Tech, Marketing Technology & Healthcare IT. Skilled in BI strategies, architectural transformation, and cost optimization. Expertise in Snowflake, dbt, Terraform, AWS services, Python, and BI tools.
+        </p>
+      </section>
 
-    <section>
-      <h2>Employment History</h2>
-      <div class="space-y-8">
-        <div>
-          <h3>Senior Lead Engineer · Kipi.bi (Remote)</h3>
-          <p class="text-gray-400 text-sm">Jan 2023 – Present</p>
-          <ul class="list-disc list-inside space-y-1 mt-2">
-            <li>Designed and implemented ETL/ELT pipelines using Python, SQL, and CI/CD.</li>
-            <li>Developed reusable data extraction pipelines with S3, Lambda, SQS, SNS, EventBridge.</li>
-            <li>Built Snowflake stored-procedure tasks for automated transformations.</li>
-            <li>Optimized data models for BI and ML workloads.</li>
-          </ul>
+      <!-- Employment History -->
+      <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 mb-8 shadow-xl border border-gray-700/30">
+        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400 mb-6">
+          Employment History
+        </h2>
+        
+        <div class="space-y-8">
+          <div class="border-l-4 border-pink-500 pl-6">
+            <h3 class="text-xl font-bold text-pink-300">Senior Lead Engineer · Kipi.bi (Remote)</h3>
+            <p class="text-gray-400 font-medium mb-3">Jan 2023 – Present</p>
+            <ul class="space-y-2 text-gray-200">
+              <li>• Designed and implemented ETL/ELT pipelines using Python, SQL, and CI/CD</li>
+              <li>• Developed reusable data extraction pipelines with S3, Lambda, SQS, SNS, EventBridge</li>
+              <li>• Built Snowflake stored-procedure tasks for automated transformations</li>
+              <li>• Optimized data models for BI and ML workloads</li>
+            </ul>
+          </div>
+
+          <div class="border-l-4 border-indigo-500 pl-6">
+            <h3 class="text-xl font-bold text-indigo-300">Analytics Engineer · Vio.com (Remote)</h3>
+            <p class="text-gray-400 font-medium mb-3">Feb 2022 – Dec 2023</p>
+            <ul class="space-y-2 text-gray-200">
+              <li>• Modeled terabyte-scale data in dbt across 15+ projects</li>
+              <li>• Led Data Mesh adoption: restructured projects, defined standards, trained teams</li>
+              <li>• Saved €3,000/mo by optimizing Snowflake/dbt; cut run-times by 30%</li>
+              <li>• Enhanced Looker reports with Aggregate Awareness, PDTs, parameterized tables</li>
+              <li>• Automated ingestion pipelines, boosting accuracy by 40%</li>
+            </ul>
+          </div>
         </div>
-        <div>
-          <h3>Analytics Engineer · Vio.com (Remote)</h3>
-          <p class="text-gray-400 text-sm">Feb 2022 – Dec 2023</p>
-          <ul class="list-disc list-inside space-y-1 mt-2">
-            <li>Modeled terabyte-scale data in dbt across 15+ projects.</li>
-            <li>Led Data Mesh adoption: restructured projects, defined standards, trained teams.</li>
-            <li>Saved €3,000/mo by optimizing Snowflake/dbt; cut run-times by 30%.</li>
-            <li>Enhanced Looker reports with Aggregate Awareness, PDTs, parameterized tables.</li>
-            <li>Automated ingestion pipelines, boosting accuracy by 40%.</li>
-          </ul>
+      </section>
+
+      <!-- Skills Section -->
+      <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 mb-8 shadow-xl border border-gray-700/30">
+        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400 mb-6">
+          Skills
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-3">
+            <p class="text-gray-200"><span class="font-bold text-pink-300">Languages & Tools:</span> SQL, T-SQL, Python, dbt, SSIS, AWS Glue</p>
+            <p class="text-gray-200"><span class="font-bold text-indigo-300">Cloud & DW:</span> Snowflake, AWS Athena, S3, Azure Blob, GCP</p>
+            <p class="text-gray-200"><span class="font-bold text-yellow-300">Databases:</span> SQL Server, PostgreSQL, MySQL</p>
+          </div>
+          <div class="space-y-3">
+            <p class="text-gray-200"><span class="font-bold text-cyan-300">BI & Visualization:</span> Looker, Power BI, SSRS, Tableau, Crystal Reports</p>
+            <p class="text-gray-200"><span class="font-bold text-purple-300">Infra & CI/CD:</span> Terraform, Git, SVN, AWS CodeCommit</p>
+            <p class="text-gray-200"><span class="font-bold text-green-300">Methodologies:</span> Dimensional Modeling, Data Mesh, ETL/ELT, CDC</p>
+          </div>
         </div>
-        <!-- repeat blocks for other roles as above -->
+      </section>
+
+      <!-- Education & Interests -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-700/30">
+          <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 mb-4">
+            Education
+          </h2>
+          <div class="space-y-2 text-gray-200">
+            <p><span class="font-bold">MCA</span>, Sardar Vallabhbhai Patel Institute of Technology · 2010–2013 · CPI 8.01</p>
+            <p><span class="font-bold">BCA</span>, The Maharaja Sayajirao University of Baroda · 2007–2010 · 58%</p>
+          </div>
+        </section>
+
+        <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-700/30">
+          <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 mb-4">
+            Interests
+          </h2>
+          <div class="space-y-2 text-gray-200">
+            <p><span class="font-bold">Domains:</span> Healthcare, Marketing Tech, Travel Tech</p>
+            <p><span class="font-bold">Hobbies:</span> Anime, RPGs, Rock & Metal Music</p>
+          </div>
+        </section>
       </div>
-    </section>
 
-    <section>
-      <h2>Education</h2>
-      <ul class="list-disc list-inside space-y-1 mt-2">
-        <li><strong>MCA</strong>, Sardar Vallabhbhai Patel Institute of Technology · 2010–2013 · CPI 8.01</li>
-        <li><strong>BCA</strong>, The Maharaja Sayajirao University of Baroda · 2007–2010 · 58 %</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Certifications</h2>
-      <ul class="list-disc list-inside space-y-1 mt-2">
-        <li>Professional Scrum Master I (PSM I), Scrum.org</li>
-      </ul>
-    </section>
-
-    <section>
-      <h2>Skills</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 text-sm">
-        <p><strong>Languages &amp; Tools:</strong> SQL, T-SQL, Python, dbt, SSIS, AWS Glue</p>
-        <p><strong>Cloud &amp; DW:</strong> Snowflake, AWS Athena, S3, Azure Blob, GCP</p>
-        <p><strong>Databases:</strong> SQL Server, PostgreSQL, MySQL</p>
-        <p><strong>BI &amp; Visualization:</strong> Looker, Power BI, SSRS, Tableau, Crystal Reports</p>
-        <p><strong>Infra &amp; CI/CD:</strong> Terraform, Git, SVN, AWS CodeCommit</p>
-        <p><strong>Project Management:</strong> Jira, Confluence, Shortcut, Miro</p>
-        <p><strong>Methodologies:</strong> Dimensional Modeling, Data Mesh, ETL/ELT, CDC</p>
-      </div>
-    </section>
-
-    <section>
-      <h2>Domains &amp; Interests</h2>
-      <p class="mt-2"><strong>Business Domains:</strong> Healthcare, Marketing Tech, Travel Tech</p>
-      <p><strong>Interests:</strong> Anime (Shonen, Seinen), RPGs, Rock &amp; Metal Music</p>
-    </section>
-
-    <section>
-      <h2>Soft Skills</h2>
-      <p class="mt-2">Leadership · Mentoring · Scrum Facilitation · Critical Thinking · Adaptability · Communication</p>
-    </section>
-  </article>
+    </article>
+  </div>
 </BaseLayout>

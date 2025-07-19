@@ -1,16 +1,48 @@
 @import "tailwindcss";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  html { scroll-behavior: smooth; }
-  body { @apply bg-gray-900 text-gray-100; }
+  html { 
+    scroll-behavior: smooth; 
+  }
+  
+  body { 
+    @apply bg-gradient-to-br from-[#120026] via-[#0f172a] to-[#2a003f] text-gray-100;
+  }
 }
+
 /* Prose (typography) overrides for dark mode */
 .prose-invert a {
-  @apply text-indigo-400 hover:text-indigo-300;
+  @apply text-pink-300 underline decoration-pink-300/50 hover:text-yellow-200 hover:decoration-yellow-200/50 transition-colors;
 }
+
 .prose-invert h2 {
-  @apply text-indigo-200;
+  @apply text-indigo-200 font-bold;
+}
+
+.prose-invert h3 {
+  @apply text-pink-300 font-semibold;
+}
+
+/* Custom animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Glassmorphism effect */
+.glass {
+  @apply bg-white/10 backdrop-blur-md border border-white/20;
+}
+
+/* Gradient text utilities */
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r;
 }

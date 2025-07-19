@@ -13,14 +13,14 @@ const { title = "Ankur Kelkar – Data & Analytics Engineer" } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
   </head>
-  <body class="bg-gray-900 text-gray-100 antialiased flex flex-col min-h-screen">
+  <body class="bg-gradient-to-br from-[#120026] via-[#0f172a] to-[#2a003f] text-gray-100 antialiased flex flex-col min-h-screen">
     <Header />
-    <main class="flex-grow container mx-auto px-4 py-8">
+    <main class="flex-grow">
       <slot />
     </main>
-    <footer class="bg-gray-800 py-6 mt-12">
-      <div class="container mx-auto px-4 text-center text-sm text-gray-500">
-        © {new Date().getFullYear()} Ankur Kelkar
+    <footer class="bg-[#181026]/70 backdrop-blur-sm py-6 mt-12">
+      <div class="container mx-auto px-4 text-center text-xs text-gray-500 tracking-wider">
+        © {new Date().getFullYear()} Ankur Kelkar · Powered by Astro + Tailwind
       </div>
     </footer>
   </body>
