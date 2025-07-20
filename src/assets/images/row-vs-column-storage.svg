@@ -1,0 +1,55 @@
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="rowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#ff6b6b;stop-opacity:0.3" />
+    </linearGradient>
+    <linearGradient id="colGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#4ecdc4;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#4ecdc4;stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Row-based storage -->
+  <g transform="translate(50, 50)">
+    <text x="0" y="-10" font-family="Arial" font-size="16" font-weight="bold">Traditional Row Storage</text>
+    <rect x="0" y="0" width="300" height="40" fill="url(#rowGrad)" stroke="#333" rx="5"/>
+    <text x="10" y="25" font-family="Arial" font-size="12">ID | Name | Age | Salary | Department</text>
+    <rect x="0" y="50" width="300" height="40" fill="url(#rowGrad)" stroke="#333" rx="5"/>
+    <text x="10" y="75" font-family="Arial" font-size="12">1 | John | 28 | 50000 | Engineering</text>
+    <rect x="0" y="100" width="300" height="40" fill="url(#rowGrad)" stroke="#333" rx="5"/>
+    <text x="10" y="125" font-family="Arial" font-size="12">2 | Jane | 32 | 55000 | Marketing</text>
+    
+    <text x="0" y="180" font-family="Arial" font-size="14" fill="#666">To find average salary, reads ALL data</text>
+  </g>
+  
+  <!-- Column-based storage -->
+  <g transform="translate(450, 50)">
+    <text x="0" y="-10" font-family="Arial" font-size="16" font-weight="bold">ClickHouse Column Storage</text>
+    <rect x="0" y="0" width="60" height="120" fill="url(#colGrad)" stroke="#333" rx="5"/>
+    <text x="5" y="15" font-family="Arial" font-size="10">ID</text>
+    <text x="5" y="35" font-family="Arial" font-size="10">1</text>
+    <text x="5" y="55" font-family="Arial" font-size="10">2</text>
+    
+    <rect x="70" y="0" width="60" height="120" fill="url(#colGrad)" stroke="#333" rx="5"/>
+    <text x="75" y="15" font-family="Arial" font-size="10">Salary</text>
+    <text x="75" y="35" font-family="Arial" font-size="10">50000</text>
+    <text x="75" y="55" font-family="Arial" font-size="10">55000</text>
+    
+    <rect x="140" y="0" width="60" height="120" fill="#f0f0f0" stroke="#333" rx="5"/>
+    <text x="145" y="15" font-family="Arial" font-size="10">Other</text>
+    <text x="145" y="35" font-family="Arial" font-size="10">Data</text>
+    
+    <text x="0" y="150" font-family="Arial" font-size="14" fill="#666">Only reads salary column</text>
+    
+    <!-- Arrow pointing to salary column -->
+    <path d="M 85 140 L 100 125" stroke="#4ecdc4" stroke-width="3" marker-end="url(#arrowhead)"/>
+  </g>
+  
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" 
+     refX="0" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#4ecdc4"/>
+    </marker>
+  </defs>
+</svg>

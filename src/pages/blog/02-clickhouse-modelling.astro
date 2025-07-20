@@ -1,0 +1,281 @@
+---
+import { Image } from 'astro:assets';
+import BlogLayout from "../../layouts/BlogLayout.astro";
+import mergetree from "../../assets/images/mergetree-family.svg";
+import orderByVisualization from "../../assets/images/order-by-visualization.svg";
+import partitioningStrategy from "../../assets/images/partitioning-strategy.svg";
+import ecommerceSchema from "../../assets/images/ecommerce-schema.svg";
+
+const title = "ClickHouse Data Modeling: Practical Patterns and Schema Design";
+const date = new Date('2025-07-03');
+const description = "Design fast, future-proof ClickHouse tables. Learn MergeTree engines, partitioning, and order keys the fun way.";
+const tags = ["ClickHouse", "Data Modeling", "MergeTree", "Analytics"];
+const part = "Part 2";
+---
+
+<BlogLayout title={title} date={date} description={description} tags={tags} part={part}>
+  <article class="prose-content prose-invert max-w-3xl mx-auto">
+    <p>
+      Welcome back! Last time, ClickHouse was up and running and slurping in some coffee shop data. Today, we’ll roll up our sleeves and tackle data modeling. It’s less about theory, more about making your queries zip.
+    </p>
+
+    <p>
+      Think of ClickHouse schemas like organizing a workshop: it’s all about finding what you need, exactly when you need it.
+    </p>
+
+    <h2>The MergeTree Family Tree</h2>
+    <p>
+      You probably remember <code>ENGINE = MergeTree()</code> from last time. But MergeTree has siblings, each with their own talent.
+    </p>
+
+    <Image src={mergetree} alt="MergeTree Family" />
+
+    <h3>MergeTree: The Dependable Default</h3>
+    <p>
+      Perfect for logs, event streams, or anything where you mostly insert new data and rarely update.
+    </p>
+    <pre><code class="language-sql">CREATE TABLE website_visits (
+  timestamp DateTime,
+  user_id UInt32,
+  page_url String,
+  session_time UInt32,
+  country FixedString(2)
+) ENGINE = MergeTree()
+ORDER BY (timestamp, user_id)
+PARTITION BY toYYYYMM(timestamp);</code></pre>
+
+    <h3>ReplacingMergeTree: The Duplicate Remover</h3>
+    <p>
+      Keeps only the latest version of a row. Handy for user profiles and product lists—just pass a version column.
+    </p>
+    <pre><code class="language-sql">CREATE TABLE user_profiles (
+  user_id UInt32,
+  email String,
+  name String,
+  last_login DateTime,
+  updated_at DateTime
+) ENGINE = ReplacingMergeTree(updated_at)
+ORDER BY user_id;</code></pre>
+
+    <h3>SummingMergeTree: The Built-In Calculator</h3>
+    <p>
+      Want ClickHouse to add up numeric columns for you? Done.
+    </p>
+    <pre><code class="language-sql">CREATE TABLE daily_sales (
+  sale_date Date,
+  store_id UInt32,
+  revenue Decimal(10, 2),
+  transactions UInt32
+) ENGINE = SummingMergeTree(revenue, transactions)
+ORDER BY (sale_date, store_id)
+PARTITION BY toYYYYMM(sale_date);</code></pre>
+
+    <h2>Engine Comparison Table</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Engine</th>
+          <th>Best For</th>
+          <th>Auto-Dedupes</th>
+          <th>Auto-Aggregates</th>
+          <th>Complexity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>MergeTree</td>
+          <td>General analytics</td>
+          <td>No</td>
+          <td>No</td>
+          <td>Simple</td>
+        </tr>
+        <tr>
+          <td>ReplacingMergeTree</td>
+          <td>Changing data</td>
+          <td>Yes</td>
+          <td>No</td>
+          <td>Easy</td>
+        </tr>
+        <tr>
+          <td>SummingMergeTree</td>
+          <td>Pre-aggregation</td>
+          <td>No</td>
+          <td>Yes (sum)</td>
+          <td>Medium</td>
+        </tr>
+        <tr>
+          <td>AggregatingMergeTree</td>
+          <td>Complex aggregation</td>
+          <td>No</td>
+          <td>Yes (custom)</td>
+          <td>Advanced</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>The ORDER BY Key: Giving Data a Roadmap</h2>
+    <p>
+      The <code>ORDER BY</code> key tells ClickHouse how to store your data. Choose wisely—this affects query speed!
+    </p>
+    <Image src={orderByVisualization} alt="ORDER BY Key Strategies" />
+
+    <p>
+      If you mostly filter by <code>timestamp</code>:
+    </p>
+    <pre><code class="language-sql">ORDER BY (timestamp, user_id, event_type)</code></pre>
+    <p>
+      If you mostly filter by <code>user_id</code>:
+    </p>
+    <pre><code class="language-sql">ORDER BY (user_id, timestamp, event_type)</code></pre>
+    <table>
+      <thead>
+        <tr>
+          <th>Query Pattern</th>
+          <th>Best ORDER BY</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Filter by day</td>
+          <td>(timestamp, user_id, ...)</td>
+          <td>Fast by date</td>
+        </tr>
+        <tr>
+          <td>Look up a user</td>
+          <td>(user_id, timestamp, ...)</td>
+          <td>Fast by user</td>
+        </tr>
+        <tr>
+          <td>Group by day</td>
+          <td>(timestamp, user_id, ...)</td>
+          <td>Easy time grouping</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Partitioning: Less Is More</h2>
+    <p>
+      Partitioning splits tables into nice, bite-sized pieces. Common patterns:
+    </p>
+    <ul>
+      <li><code>PARTITION BY toYYYYMM(timestamp)</code> for monthly chunks</li>
+      <li><code>PARTITION BY toDate(timestamp)</code> for huge tables and daily queries</li>
+      <li><code>PARTITION BY country_code</code> for geo-data</li>
+      <li><code>PARTITION BY (toYYYYMM(timestamp), region)</code> for a combo</li>
+    </ul>
+    <Image src={partitioningStrategy} alt="ClickHouse Partitioning Strategy" />
+    <p>
+      Pro tip: Aim for partitions of at least 10–100GB. Too many tiny partitions can slow you down.
+    </p>
+
+    <h2>ClickHouse Data Types: Choose Wisely</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Instead of</th>
+          <th>Use</th>
+          <th>Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>String (status)</td>
+          <td>Enum8</td>
+          <td>Uses just 1 byte</td>
+        </tr>
+        <tr>
+          <td>String (country)</td>
+          <td>FixedString(2)</td>
+          <td>Always two letters</td>
+        </tr>
+        <tr>
+          <td>UInt64 (small ints)</td>
+          <td>UInt8/UInt16</td>
+          <td>Less space</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      For advanced stuff: use <code>Map</code> for key-value pairs, <code>Array</code> for lists, and <code>AggregateFunction</code> for fast approximate counts.
+    </p>
+
+    <h2>Real-World Example: Analytics for an Online Store</h2>
+    <Image src={ecommerceSchema} alt="E-commerce Analytics Schema" />
+    <pre><code class="language-sql">-- Orders: optimized for time and customer lookup
+CREATE TABLE orders (
+  order_date Date,
+  order_timestamp DateTime,
+  order_id UInt64,
+  customer_id UInt32,
+  total_amount Decimal(10, 2),
+  currency FixedString(3),
+  country FixedString(2),
+  payment_method Enum8('card'=1, 'paypal'=2, 'bank'=3),
+  status Enum8('pending'=1, 'paid'=2, 'shipped'=3, 'delivered'=4)
+) ENGINE = MergeTree()
+ORDER BY (order_date, customer_id, order_id)
+PARTITION BY toYYYYMM(order_date);
+
+-- Order items: product-centric and time-based
+CREATE TABLE order_items (
+  order_date Date,
+  order_id UInt64,
+  product_id UInt32,
+  category String,
+  quantity UInt16,
+  unit_price Decimal(10, 2),
+  discount Decimal(10, 2)
+) ENGINE = MergeTree()
+ORDER BY (product_id, order_date)
+PARTITION BY toYYYYMM(order_date);
+
+-- Pre-aggregated daily metrics for dashboards
+CREATE TABLE daily_metrics (
+  date Date,
+  country FixedString(2),
+  total_orders UInt32,
+  revenue Decimal(12, 2),
+  new_customers UInt32
+) ENGINE = SummingMergeTree(total_orders, revenue, new_customers)
+ORDER BY (date, country)
+PARTITION BY toYYYYMM(date);</code></pre>
+
+    <h2>Common Mistakes (Skip These!)</h2>
+    <ul>
+      <li>
+        <strong>Too many columns in ORDER BY:</strong> Keep it short. Only include what you filter on most.
+      </li>
+      <li>
+        <strong>Wrong column order:</strong> Most selective/high-cardinality first.
+      </li>
+      <li>
+        <strong>Tiny partitions:</strong> Fewer, bigger partitions are faster.
+      </li>
+    </ul>
+    <pre><code class="language-sql">-- Better ORDER BY: only main filter keys
+ORDER BY (user_id, session_id, timestamp)</code></pre>
+
+    <h2>Schema Design Checklist</h2>
+    <ul>
+      <li>What’s the main thing you’ll query this data by?</li>
+      <li>How much data will pile up?</li>
+      <li>Mostly inserts or heavy querying?</li>
+      <li>Need exact or “good enough” answers?</li>
+      <li>Start simple; you can always evolve it.</li>
+    </ul>
+
+    <h2>Challenge: Try It Yourself!</h2>
+    <p>
+      Pick a project—fitness tracking, recipes, gaming, finance—and sketch a schema. Think about:
+    </p>
+    <ul>
+      <li>The kind of reports you’ll want</li>
+      <li>How partitioning would work</li>
+      <li>What your <code>ORDER BY</code> key should be</li>
+    </ul>
+    <p>
+      You’ll get better every time. Data modeling in ClickHouse is practical, fun, and a little creative. See you next time for ETL tips and tricks!
+    </p>
+  </article>
+</BlogLayout>

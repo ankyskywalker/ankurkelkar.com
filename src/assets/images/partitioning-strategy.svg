@@ -1,0 +1,58 @@
+<svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Single large table (bad) -->
+  <g>
+    <text x="50" y="30" font-size="16" font-weight="bold" fill="#dc2626">Without Partitioning</text>
+    <rect x="50" y="50" width="300" height="100" fill="#fecaca" stroke="#dc2626" stroke-width="2" rx="5"/>
+    <text x="200" y="105" text-anchor="middle" font-size="14" fill="#374151">One Giant Table</text>
+    <text x="200" y="125" text-anchor="middle" font-size="12" fill="#6b7280">1TB of mixed data</text>
+    
+    <text x="50" y="180" font-size="12" fill="#dc2626">❌ Must scan entire table for any query</text>
+    <text x="50" y="200" font-size="12" fill="#dc2626">❌ Slow inserts and updates</text>
+    <text x="50" y="220" font-size="12" fill="#dc2626">❌ No parallel processing</text>
+  </g>
+  
+  <!-- Partitioned table (good) -->
+  <g>
+    <text x="450" y="30" font-size="16" font-weight="bold" fill="#059669">With Partitioning</text>
+    
+    <!-- January partition -->
+    <rect x="450" y="50" width="80" height="60" fill="#d1fae5" stroke="#059669" rx="5"/>
+    <text x="490" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#374151">Jan 2025</text>
+    <text x="490" y="90" text-anchor="middle" font-size="10" fill="#6b7280">100GB</text>
+    
+    <!-- February partition -->
+    <rect x="540" y="50" width="80" height="60" fill="#d1fae5" stroke="#059669" rx="5"/>
+    <text x="580" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#374151">Feb 2025</text>
+    <text x="580" y="90" text-anchor="middle" font-size="10" fill="#6b7280">120GB</text>
+    
+    <!-- March partition -->
+    <rect x="630" y="50" width="80" height="60" fill="#d1fae5" stroke="#059669" rx="5"/>
+    <text x="670" y="75" text-anchor="middle" font-size="12" font-weight="bold" fill="#374151">Mar 2025</text>
+    <text x="670" y="90" text-anchor="middle" font-size="10" fill="#6b7280">95GB</text>
+    
+    <!-- More partitions indication -->
+    <text x="720" y="80" font-size="20" fill="#6b7280">...</text>
+    
+    <text x="450" y="140" font-size="12" fill="#059669">✓ Only scans relevant partitions</text>
+    <text x="450" y="160" font-size="12" fill="#059669">✓ Fast parallel processing</text>
+    <text x="450" y="180" font-size="12" fill="#059669">✓ Easy to drop old data</text>
+  </g>
+  
+  <!-- Query example -->
+  <g>
+    <rect x="200" y="280" width="400" height="80" fill="#f3f4f6" stroke="#9ca3af" rx="5"/>
+    <text x="400" y="305" text-anchor="middle" font-size="14" font-weight="bold" fill="#374151">Query: "Show February sales"</text>
+    
+    <!-- Arrow pointing to Feb partition -->
+    <path d="M 400 280 Q 420 240 580 240 Q 580 220 580 110" fill="none" stroke="#f59e0b" stroke-width="3" marker-end="url(#yellowArrow)"/>
+    
+    <text x="400" y="330" text-anchor="middle" font-size="12" fill="#374151">ClickHouse automatically scans only February partition</text>
+    <text x="400" y="350" text-anchor="middle" font-size="12" fill="#6b7280">Ignores all other months = 10x faster!</text>
+  </g>
+  
+  <defs>
+    <marker id="yellowArrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#f59e0b"/>
+    </marker>
+  </defs>
+</svg>

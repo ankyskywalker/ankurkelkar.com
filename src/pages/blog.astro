@@ -1,18 +1,32 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-// Fetch all blog posts and filter out drafts
-const posts = (await getCollection('blog', ({ data }) => {
-  return data.draft !== true;
-})).sort((a, b) => new Date(b.data.date).valueOf() - new Date(a.data.date).valueOf());
+// Static blog posts data
+const posts = [
+  {
+    slug: '01-clickhouse-fundamentals',
+    title: 'ClickHouse Fundamentals: The Database That Actually Makes Analytics Fun',
+    date: new Date('2025-07-01'),
+    description: "Let's dive into ClickHouse together - no intimidating jargon, just a warm welcome to your new favorite database.",
+    tags: ['ClickHouse', 'OLAP', 'Getting Started'],
+    part: 'Part 1'
+  },
+  {
+    slug: '02-clickhouse-modelling',
+    title: 'ClickHouse Data Modeling: Practical Patterns and Schema Design',
+    date: new Date('2025-07-03'),
+    description: "Design fast, future-proof ClickHouse tables. Learn MergeTree engines, partitioning, and order keys the fun way.",
+    tags: ['ClickHouse', 'Data Modeling', 'MergeTree', 'Analytics'],
+    part: 'Part 2'
+  }
+  // Add more posts here as you create them
+].sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf());
 
 const pageTitle = "Blog - ClickHouse Learning Journey";
 ---
 
 <BaseLayout title={pageTitle}>
   <div class="container mx-auto px-4 py-12">
-    <!-- Animated background pattern -->
     <!-- Header Section -->
     <div class="text-center mb-16">
       <h1 class="text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-pink-400 to-yellow-200 mb-6">
@@ -26,7 +40,7 @@ const pageTitle = "Blog - ClickHouse Learning Journey";
     <!-- Featured Series -->
     <section class="mb-16">
       <div class="bg-gradient-to-r from-slate-800/80 to-purple-900/80 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-purple-500/20">
-        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-300 mb-6">
+        <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-300 mb-6">
           🚀 Featured Series: ClickHouse Mastery
         </h2>
         <p class="text-gray-200 text-lg mb-6">
@@ -47,23 +61,35 @@ const pageTitle = "Blog - ClickHouse Learning Journey";
         <article class="group bg-slate-800/60 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-700/30 hover:border-pink-500/50 transition-all duration-300 hover:-translate-y-2">
           <div class="mb-4">
             <div class="flex items-center justify-between text-sm text-gray-400 mb-3">
-              <time datetime={post.data.date.toISOString()}>
-                {post.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              <time datetime={post.date.toISOString()}>
+                {post.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
               </time>
-              <span class="px-2 py-1 bg-indigo-600/20 rounded text-xs">
-                Part {index + 1}
-              </span>
+              {post.part && (
+                <span class="px-2 py-1 bg-pink-600/30 rounded text-pink-300 text-xs font-semibold">
+                  {post.part}
+                </span>
+              )}
             </div>
             
             <h3 class="text-xl font-bold text-gray-100 group-hover:text-pink-300 transition-colors mb-3">
               <a href={`/blog/${post.slug}`} class="hover:underline">
-                {post.data.title}
+                {post.title}
               </a>
             </h3>
             
             <p class="text-gray-300 leading-relaxed mb-4">
-              {post.data.description}
+              {post.description}
             </p>
+
+            {post.tags && post.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2 mb-4">
+                {post.tags.map((tag) => (
+                  <span class="px-2 py-1 bg-indigo-600/20 rounded text-indigo-300 text-xs">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           
           <a 
