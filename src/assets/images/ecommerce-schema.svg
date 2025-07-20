@@ -1,0 +1,81 @@
+<svg viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Orders table -->
+  <g>
+    <rect x="50" y="50" width="200" height="120" fill="#ddd6fe" stroke="#8b5cf6" stroke-width="2" rx="8"/>
+    <text x="150" y="75" text-anchor="middle" font-size="16" font-weight="bold" fill="#374151">orders</text>
+    
+    <text x="60" y="95" font-size="12" fill="#374151">order_date, order_id</text>
+    <text x="60" y="110" font-size="12" fill="#374151">customer_id, total_amount</text>
+    <text x="60" y="125" font-size="12" fill="#374151">currency, country</text>
+    <text x="60" y="140" font-size="12" fill="#374151">payment_method, status</text>
+    
+    <text x="150" y="190" text-anchor="middle" font-size="12" fill="#8b5cf6" font-weight="bold">ORDER BY (order_date, customer_id)</text>
+    <text x="150" y="205" text-anchor="middle" font-size="11" fill="#6b7280">Fast time-range queries</text>
+  </g>
+  
+  <!-- Order Items table -->
+  <g>
+    <rect x="350" y="50" width="200" height="120" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="8"/>
+    <text x="450" y="75" text-anchor="middle" font-size="16" font-weight="bold" fill="#374151">order_items</text>
+    
+    <text x="360" y="95" font-size="12" fill="#374151">order_id, product_id</text>
+    <text x="360" y="110" font-size="12" fill="#374151">product_category</text>
+    <text x="360" y="125" font-size="12" fill="#374151">quantity, unit_price</text>
+    <text x="360" y="140" font-size="12" fill="#374151">discount_amount</text>
+    
+    <text x="450" y="190" text-anchor="middle" font-size="12" fill="#f59e0b" font-weight="bold">ORDER BY (product_id, order_date)</text>
+    <text x="450" y="205" text-anchor="middle" font-size="11" fill="#6b7280">Fast product analysis</text>
+  </g>
+  
+  <!-- Daily Metrics table -->
+  <g>
+    <rect x="650" y="50" width="200" height="120" fill="#dcfce7" stroke="#16a34a" stroke-width="2" rx="8"/>
+    <text x="750" y="75" text-anchor="middle" font-size="16" font-weight="bold" fill="#374151">daily_metrics</text>
+    
+    <text x="660" y="95" font-size="12" fill="#374151">date, country</text>
+    <text x="660" y="110" font-size="12" fill="#374151">total_orders ↑</text>
+    <text x="660" y="125" font-size="12" fill="#374151">revenue ↑</text>
+    <text x="660" y="140" font-size="12" fill="#374151">new_customers ↑</text>
+    
+    <text x="750" y="190" text-anchor="middle" font-size="12" fill="#16a34a" font-weight="bold">SummingMergeTree</text>
+    <text x="750" y="205" text-anchor="middle" font-size="11" fill="#6b7280">Pre-aggregated for dashboards</text>
+  </g>
+  
+  <!-- Relationships -->
+  <path d="M 250 110 L 350 110" fill="none" stroke="#6b7280" stroke-width="2" marker-end="url(#grayArrow)"/>
+  <text x="300" y="105" text-anchor="middle" font-size="11" fill="#6b7280">order_id</text>
+  
+  <path d="M 150 170 Q 150 250 450 250 Q 750 250 750 170" fill="none" stroke="#6b7280" stroke-width="2" marker-end="url(#grayArrow)"/>
+  <text x="450" y="240" text-anchor="middle" font-size="11" fill="#6b7280">Aggregated nightly via ETL</text>
+  
+  <!-- Query examples -->
+  <g>
+    <rect x="50" y="300" width="800" height="150" fill="#f9fafb" stroke="#e5e7eb" rx="8"/>
+    <text x="450" y="325" text-anchor="middle" font-size="16" font-weight="bold" fill="#374151">Common Query Patterns</text>
+    
+    <!-- Orders queries -->
+    <text x="70" y="350" font-size="12" fill="#8b5cf6" font-weight="bold">orders table:</text>
+    <text x="70" y="365" font-size="11" fill="#374151">• "Revenue by month" → Fast (uses order_date)</text>
+    <text x="70" y="380" font-size="11" fill="#374151">• "Customer purchase history" → Fast (uses customer_id)</text>
+    
+    <!-- Order items queries -->
+    <text x="320" y="350" font-size="12" fill="#f59e0b" font-weight="bold">order_items table:</text>
+    <text x="320" y="365" font-size="11" fill="#374151">• "Top-selling products" → Fast (uses product_id)</text>
+    <text x="320" y="380" font-size="11" fill="#374151">• "Category performance" → Fast (product grouping)</text>
+    
+    <!-- Metrics queries -->
+    <text x="620" y="350" font-size="12" fill="#16a34a" font-weight="bold">daily_metrics table:</text>
+    <text x="620" y="365" font-size="11" fill="#374151">• "Daily dashboard" → Super fast (pre-aggregated)</text>
+    <text x="620" y="380" font-size="11" fill="#374151">• "Country comparison" → Lightning fast</text>
+    
+    <!-- Performance note -->
+    <text x="450" y="410" text-anchor="middle" font-size="12" fill="#059669" font-weight="bold">Result: Queries that used to take 30+ seconds now run in under 1 second</text>
+    <text x="450" y="430" text-anchor="middle" font-size="11" fill="#6b7280">Each table is optimized for its specific use case</text>
+  </g>
+  
+  <defs>
+    <marker id="grayArrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#6b7280"/>
+    </marker>
+  </defs>
+</svg>

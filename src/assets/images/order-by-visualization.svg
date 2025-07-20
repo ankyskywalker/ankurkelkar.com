@@ -1,0 +1,66 @@
+<svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Time-first ordering -->
+  <g>
+    <text x="50" y="30" font-size="16" font-weight="bold" fill="#374151">ORDER BY (timestamp, user_id)</text>
+    
+    <!-- Time blocks -->
+    <rect x="50" y="50" width="120" height="40" fill="#ddd6fe" stroke="#8b5cf6" rx="5"/>
+    <text x="110" y="75" text-anchor="middle" font-size="12" fill="#374151">2025-07-01</text>
+    
+    <rect x="180" y="50" width="120" height="40" fill="#ddd6fe" stroke="#8b5cf6" rx="5"/>
+    <text x="240" y="75" text-anchor="middle" font-size="12" fill="#374151">2025-07-02</text>
+    
+    <rect x="310" y="50" width="120" height="40" fill="#ddd6fe" stroke="#8b5cf6" rx="5"/>
+    <text x="370" y="75" text-anchor="middle" font-size="12" fill="#374151">2025-07-03</text>
+    
+    <!-- Users within time blocks -->
+    <rect x="60" y="100" width="30" height="20" fill="#c7d2fe" stroke="#6366f1" rx="3"/>
+    <text x="75" y="113" text-anchor="middle" font-size="10" fill="#374151">U1</text>
+    
+    <rect x="95" y="100" width="30" height="20" fill="#c7d2fe" stroke="#6366f1" rx="3"/>
+    <text x="110" y="113" text-anchor="middle" font-size="10" fill="#374151">U2</text>
+    
+    <rect x="130" y="100" width="30" height="20" fill="#c7d2fe" stroke="#6366f1" rx="3"/>
+    <text x="145" y="113" text-anchor="middle" font-size="10" fill="#374151">U3</text>
+    
+    <text x="50" y="145" font-size="12" fill="#6b7280">Fast: "Show events from July 1st"</text>
+    <text x="50" y="160" font-size="12" fill="#6b7280">Slow: "Show all events for User 2"</text>
+  </g>
+  
+  <!-- User-first ordering -->
+  <g>
+    <text x="500" y="30" font-size="16" font-weight="bold" fill="#374151">ORDER BY (user_id, timestamp)</text>
+    
+    <!-- User blocks -->
+    <rect x="500" y="50" width="80" height="40" fill="#fed7d7" stroke="#f56565" rx="5"/>
+    <text x="540" y="75" text-anchor="middle" font-size="12" fill="#374151">User 1</text>
+    
+    <rect x="590" y="50" width="80" height="40" fill="#fed7d7" stroke="#f56565" rx="5"/>
+    <text x="630" y="75" text-anchor="middle" font-size="12" fill="#374151">User 2</text>
+    
+    <rect x="680" y="50" width="80" height="40" fill="#fed7d7" stroke="#f56565" rx="5"/>
+    <text x="720" y="75" text-anchor="middle" font-size="12" fill="#374151">User 3</text>
+    
+    <!-- Time within user blocks -->
+    <rect x="505" y="100" width="25" height="20" fill="#fbb6ce" stroke="#ed64a6" rx="3"/>
+    <text x="517" y="113" text-anchor="middle" font-size="9" fill="#374151">7/1</text>
+    
+    <rect x="535" y="100" width="25" height="20" fill="#fbb6ce" stroke="#ed64a6" rx="3"/>
+    <text x="547" y="113" text-anchor="middle" font-size="9" fill="#374151">7/2</text>
+    
+    <rect x="565" y="100" width="25" height="20" fill="#fbb6ce" stroke="#ed64a6" rx="3"/>
+    <text x="577" y="113" text-anchor="middle" font-size="9" fill="#374151">7/3</text>
+    
+    <text x="500" y="145" font-size="12" fill="#6b7280">Fast: "Show all events for User 2"</text>
+    <text x="500" y="160" font-size="12" fill="#6b7280">Slow: "Show events from July 1st"</text>
+  </g>
+  
+  <!-- Arrow showing the difference -->
+  <path d="M 450 75 Q 475 75 475 100 Q 475 125 450 125" fill="none" stroke="#9ca3af" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#9ca3af"/>
+    </marker>
+  </defs>
+</svg>

@@ -3,6 +3,7 @@ title: "ClickHouse [Part 2] Data Modeling: Making Your Data Feel at Home"
 date: 2025-07-03
 description: "Learn the art and science of designing ClickHouse schemas that perform beautifully and make sense to humans too."
 tags: ["ClickHouse", "Data Modeling", "MergeTree", "Performance"]
+part: "Part 2"
 ---
 
 # ClickHouse Data Modeling: Making Your Data Feel at Home
