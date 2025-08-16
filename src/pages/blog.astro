@@ -18,6 +18,14 @@ const posts = [
     description: "Design fast, future-proof ClickHouse tables. Learn MergeTree engines, partitioning, and order keys the fun way.",
     tags: ['ClickHouse', 'Data Modeling', 'MergeTree', 'Analytics'],
     part: 'Part 2'
+  },
+  {
+    slug: '03-clickhouse-ingestion',
+    title: 'ClickHouse ETL & Data Ingestion: Feeding the Analytics Beast',
+    date: new Date('2025-08-16'),
+    description: "Master the art of getting data into ClickHouse efficiently, from simple batch loads to real-time streaming pipelines.",
+    tags: ['ClickHouse', 'ETL', 'Data Pipeline', 'Kafka'],
+    part: 'Part 3'
   }
   // Add more posts here as you create them
 ].sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf());
