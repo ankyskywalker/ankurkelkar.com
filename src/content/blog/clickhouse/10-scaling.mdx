@@ -1,0 +1,57 @@
+---
+title: "Part 10: Scaling & Operations"
+date: 2023-10-10
+description: "Going global: Sharding, Replication, and managing ClickHouse at scale."
+tags: ["ClickHouse", "Scaling", "Sharding", "Replication", "Operations"]
+part: "Part 10 of 10"
+cover: "../../../assets/images/clickhouse/part-10.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    You've made it to the final part! We've covered everything from
+    installation to advanced query tuning. Now, let's talk about what
+    happens when one server isn't enough.
+</p>
+
+<h2>Replication</h2>
+<p>
+    Replication provides high availability. In ClickHouse, this is done
+    using the <code>ReplicatedMergeTree</code> engine, which uses ZooKeeper
+    (or ClickHouse Keeper) to coordinate data consistency across replicas.
+</p>
+<pre class="language-sql">
+CREATE TABLE hits_replicated (
+    timestamp DateTime,
+    user_id UInt64
+) ENGINE = ReplicatedMergeTree('/clickhouse/tables/{'{shard}'}/hits', '{'{replica}'}')
+ORDER BY timestamp;
+</pre>
+
+<h2>Sharding</h2>
+<p>
+    Sharding allows you to scale horizontally by distributing data
+    across multiple nodes. You query a <code>Distributed</code> table, which
+    acts as a router to the underlying local tables on each shard.
+</p>
+<pre class="language-sql">
+CREATE TABLE hits_distributed AS hits_replicated
+ENGINE = Distributed(my_cluster, default, hits_replicated, rand());
+</pre>
+
+<h2>Operations & Monitoring</h2>
+<p>
+    Running a cluster requires visibility. ClickHouse exposes internal
+    metrics via system tables (<code>system.metrics</code>, <code>system.events</code>) which can be scraped by Prometheus and visualized in Grafana.
+</p>
+
+<h2>Series Conclusion</h2>
+<p>
+    Congratulations on completing the "ClickHouse: From Zero to Hero"
+    series! You now have the knowledge to build, optimize, and scale a
+    world-class real-time analytics platform. Go forth and query!
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/clickhouse/09-tuning" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 9 - Performance Tuning</a>
+    <a href="/blog/clickhouse/01-intro" class="text-pink-400 hover:text-pink-300 font-bold">Start Over: Part 1 - Introduction &rarr;</a>
+</div>

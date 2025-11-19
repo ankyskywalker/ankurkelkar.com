@@ -1,0 +1,46 @@
+---
+title: "Part 7: Performance Tuning"
+date: 2023-11-07
+description: "Making it fly. Indexes, EXPLAIN, and why you shouldn't scan the whole cluster."
+tags: ["CockroachDB", "Performance", "Tuning"]
+part: "Part 7 of 10"
+cover: "../../../assets/images/cockroach/part-7.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    A distributed database is not a magic bullet. If you write bad queries, they will be slow. In fact, they might be slower than on a single node because of network latency.
+</p>
+
+<h2>Indexes are Critical</h2>
+<p>
+    In a distributed system, a full table scan means visiting every node in the cluster. This is expensive. You MUST use indexes.
+</p>
+```sql
+CREATE INDEX on users (email);
+```
+
+<h2>EXPLAIN ANALYZE</h2>
+<p>
+    Just like Postgres, CockroachDB has an <code>EXPLAIN</code> command. It tells you exactly how a query will be executed.
+</p>
+```sql
+EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'alice@example.com';
+```
+<p>
+    Look for <code>distribution: full</code>. That's usually bad. You want queries to be routed to specific nodes.
+</p>
+
+<h2>Topology Awareness</h2>
+<p>
+    CockroachDB is topology-aware. It knows which nodes are close to each other. But you need to help it by designing your schema correctly (see Part 4).
+</p>
+
+<h2>Conclusion</h2>
+<p>
+    Tuning a distributed database is an art. But the real superpower of CockroachDB is its ability to span the globe.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/cockroach/06-transactions" class="text-purple-400 hover:text-purple-300 font-bold">&larr; Part 6 - Transactions</a>
+    <a href="/blog/cockroach/08-geo-partitioning" class="text-purple-400 hover:text-purple-300 font-bold">Next: Part 8 - Geo-Partitioning &rarr;</a>
+</div>

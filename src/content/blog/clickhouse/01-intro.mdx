@@ -1,0 +1,75 @@
+---
+title: "Part 1: Introduction & Architecture"
+date: 2023-10-01
+description: "What is ClickHouse, why is it so fast, and how does it work under the hood?"
+tags: ["ClickHouse", "Architecture", "OLAP"]
+part: "Part 1 of 10"
+cover: "../../../assets/images/clickhouse/part-1.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Welcome to "ClickHouse: From Zero to Hero". In this first part,
+    we'll explore what makes ClickHouse the fastest OLAP database on the
+    planet.
+</p>
+
+<h2>What is ClickHouse?</h2>
+<p>
+    ClickHouse is an open-source column-oriented database management
+    system (DBMS) for online analytical processing (OLAP). It allows
+    generating analytical reports using SQL queries in real-time.
+</p>
+
+<h2>Row-Oriented vs. Column-Oriented</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-8">
+    <div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-pink-500">
+        <h4 class="text-pink-300 font-bold mb-2">
+            Row-Oriented (MySQL, Postgres)
+        </h4>
+        <p>
+            Data is stored row by row. Great for transactional workloads
+            (OLTP) where you need to fetch or update a single user's
+            record.
+        </p>
+    </div>
+    <div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-cyan-500">
+        <h4 class="text-cyan-300 font-bold mb-2">
+            Column-Oriented (ClickHouse)
+        </h4>
+        <p>
+            Data is stored column by column. Great for analytical
+            workloads (OLAP) where you want to calculate the average
+            price of all orders.
+        </p>
+    </div>
+</div>
+
+<h2>Why is it so fast?</h2>
+<ul class="list-disc ml-4 space-y-2 text-gray-300">
+    <li>
+        <strong>Columnar Storage:</strong> Only reads the columns you need.
+    </li>
+    <li>
+        <strong>Compression:</strong> Columnar data compresses extremely
+        well (LZ4, ZSTD).
+    </li>
+    <li>
+        <strong>Vectorized Execution:</strong> Processes data in blocks,
+        utilizing modern CPU SIMD instructions.
+    </li>
+    <li>
+        <strong>Parallel Processing:</strong> Utilizes all available CPU
+        cores.
+    </li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>
+    ClickHouse is designed from the ground up for speed. In the next
+    part, we'll get our hands dirty and install ClickHouse.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <span></span>
+    <a href="/blog/clickhouse/02-installation" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 2 - Installation &rarr;</a>
+</div>

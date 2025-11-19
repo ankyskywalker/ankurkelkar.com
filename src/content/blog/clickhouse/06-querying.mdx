@@ -1,0 +1,84 @@
+---
+title: "Part 6: Querying Basics"
+date: 2023-10-06
+description: "Mastering SQL in ClickHouse: Aggregations, PREWHERE, and performance tips."
+tags: ["ClickHouse", "SQL", "Querying"]
+part: "Part 6 of 10"
+cover: "../../../assets/images/clickhouse/part-6.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    If you know SQL, you know ClickHouse. It supports standard SQL (ANSI
+    2011), but with some superpowers.
+</p>
+
+<h2>The Secret Weapon: PREWHERE</h2>
+<p>
+    In standard SQL, you use <code>WHERE</code> to filter rows. In ClickHouse,
+    there is a more efficient variation called <code>PREWHERE</code>.
+</p>
+<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-green-500 my-8">
+    <h4 class="text-green-300 font-bold mb-2">How it works</h4>
+    <p>
+        <code>PREWHERE</code> filters data <em>before</em> reading the rest
+        of the columns. It reads only the columns needed for filtering, drops
+        the non-matching rows, and <em>then</em> reads the other columns.
+    </p>
+</div>
+<p>
+    Good news: ClickHouse automatically moves conditions from <code>WHERE</code> to <code>PREWHERE</code> when possible!
+</p>
+
+<h2>Aggregations on Steroids</h2>
+<p>ClickHouse is an OLAP database, so it shines at aggregations.</p>
+<pre class="language-sql">
+SELECT
+    toStartOfHour(event_time) AS hour,
+    count() AS total_events,
+    uniq(user_id) AS unique_users,
+    avg(duration) AS avg_duration
+FROM events
+GROUP BY hour
+ORDER BY hour DESC
+LIMIT 10;
+</pre>
+
+<ul class="list-disc ml-4 space-y-2 text-gray-300">
+    <li>
+        <strong>count():</strong> Faster than <code>count(*)</code>.
+    </li>
+    <li>
+        <strong>uniq():</strong> Approximate unique count (HyperLogLog).
+        Extremely fast and memory efficient.
+    </li>
+    <li>
+        <strong>uniqExact():</strong> Exact unique count. Slower and uses
+        more memory.
+    </li>
+</ul>
+
+<h2>Date and Time Functions</h2>
+<p>
+    ClickHouse has a rich library of functions for working with time
+    series data.
+</p>
+<ul class="list-disc ml-4 space-y-2 text-gray-300">
+    <li>
+        <code>toStartOfHour</code>, <code>toStartOfDay</code>, <code>toStartOfMonth</code>
+    </li>
+    <li><code>formatDateTime</code></li>
+    <li><code>dateDiff</code></li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>
+    Writing queries in ClickHouse feels familiar, but the performance is
+    unlike anything else. By understanding how ClickHouse executes
+    queries (like <code>PREWHERE</code>), you can write even faster SQL.
+    Next, we'll look at some advanced features like arrays and maps.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/clickhouse/05-ingestion" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 5 - Ingestion</a>
+    <a href="/blog/clickhouse/07-advanced" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 7 - Advanced Features &rarr;</a>
+</div>

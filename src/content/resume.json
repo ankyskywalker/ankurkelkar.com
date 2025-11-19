@@ -1,0 +1,232 @@
+{
+    "basics": {
+        "name": "Ankur Kelkar",
+        "label": "Analytics Engineer",
+        "email": "ankur.kelkar@gmail.com",
+        "phone": "+91 96017 02886",
+        "location": "Pune, India",
+        "profiles": [
+            {
+                "network": "LinkedIn",
+                "username": "ankurkelkar",
+                "url": "https://linkedin.com/in/ankurkelkar"
+            },
+            {
+                "network": "Twitter",
+                "username": "ankyskywalker",
+                "url": "https://twitter.com/ankyskywalker"
+            }
+        ],
+        "summary": "Experienced Data Architect/Engineer with 10+ years in Travel Tech, Marketing Technology & Healthcare IT. Skilled in BI strategies, architectural transformation, and cost optimization. Expertise in Snowflake, dbt, Terraform, AWS services, Python, and BI tools."
+    },
+    "work": [
+        {
+            "company": "Kipi.bi",
+            "position": "Senior Lead Engineer",
+            "location": "Remote",
+            "startDate": "Jan 2023",
+            "endDate": "Present",
+            "highlights": [
+                "Designed and implemented ETL/ELT pipelines using Python, SQL, and CI/CD",
+                "Developed reusable data extraction pipelines with S3, Lambda, SQS, SNS, EventBridge",
+                "Built Snowflake stored-procedure tasks for automated transformations",
+                "Optimized data models for BI and ML workloads",
+                "Working with Snowflake as the main Data Warehousing tool hosted on AWS.",
+                "Worked on designing and implementing multiple ETL and ELT data pipelines using programming languages like Python and SQL and automated the code deployment through CI/CD pipelines.",
+                "Created and optimized data models for the project keeping all BI and ML use cases in mind.",
+                "Created multiple reusable data extraction pipelines using AWS services like S3, Lambda, SQS, SNS, Eventbridge & CodeCommit.",
+                "Created multiple reusable data load and transformation pipelines using Snowflake Stored procedures & Tasks."
+            ],
+            "color": "pink"
+        },
+        {
+            "company": "Vio.com",
+            "position": "Analytics Engineer",
+            "location": "Remote",
+            "startDate": "Feb 2022",
+            "endDate": "Dec 2023",
+            "highlights": [
+                "Modelled terabyte scale data across 15+ projects in dbt along with a team of three people.",
+                "Collaborated with the team to implement a Data Mesh Architecture, involving the restructuring of multiple dbt projects, establishment of new processes and standards across various domains, and educating the organization on best practices.",
+                "Pioneered an RFC (Request for Change) that improved financial data ingestion with a distributed architecture, eliminating single points of failure while delivering significant cost savings and heightened observability and robustness.",
+                "Achieved substantial cost savings of approximately 3,000 € per month by optimizing dbt pipelines through meticulous utilization of Snowflake query plans and industry best practices.",
+                "Slashed incremental data processing time by 30% through the strategic incorporation of hash-based retrieval for efficiently identifying modified data.",
+                "Elevated Looker reports' performance and precision by implementing advanced features like Aggregate Awareness, PDTs, and Parameterized table sources.",
+                "Automated invoice ingestion, improving financial data accuracy and timeliness by 40%.",
+                "Improved Kustomer and Stripe data ingestion for valuable insights and data-driven decisions."
+            ],
+            "color": "indigo"
+        },
+        {
+            "company": "Demandbase Data Cloud",
+            "position": "Sr. Data Analyst",
+            "location": "Pune",
+            "startDate": "Feb 2020",
+            "endDate": "Jan 2022",
+            "highlights": [
+                "Lead a team of 3 Analysts to solve problems for Fortune 500 companies by leveraging technographic and firmographic data.",
+                "Working on complex projects with AWS S3, AWS Athena, Presto and Python and dashboarding and visualizing data with Power BI",
+                "Running the SCRUM and maintaining sprints on JIRA"
+            ],
+            "color": "green"
+        },
+        {
+            "company": "Radamatic Solutions Pvt. Ltd.",
+            "position": "Sr. SQL Developer",
+            "location": "Pune",
+            "startDate": "Sep 2019",
+            "endDate": "Feb 2020",
+            "highlights": [
+                "Worked on SQL Procedures Optimization for the product",
+                "Data migration from Azure SQL Datawarehouse to Snowflake"
+            ],
+            "color": "cyan"
+        },
+        {
+            "company": "Allscripts Healthcare Solutions Inc.",
+            "position": "Associate Systems Analyst -> Sr. System Analyst",
+            "location": "Vadodara",
+            "startDate": "Jan 2014",
+            "endDate": "Sep 2019",
+            "highlights": [
+                "Lead a team of 8 analysts while managing several new and ongoing Business Intelligence and HL7 Integration projects for 5+ EHR clients while managing project timelines, resources and maintaining KPI’s.",
+                "Seamlessly collaborated with onsite managers to plan future projects and resources for multiple ambulatory care clients.",
+                "Mentored and coached team members in mastering the US Ambulatory Healthcare workflow, Allscripts EEHR, Allscripts PM",
+                "Worked on multiple HL7 Interface engines like ConnectR, Rhapsody and eLink",
+                "Collaborated with business unit teams and end users in planning and implementation of Data Migration of clinical data from Allscripts EEHR to EPIC",
+                "Creation of a Data Warehouse, packages and HL7 interfaces to facilitate a continuous data transfer of patient data in multiple stages.",
+                "Collaborated with EPIC and Oracle to plan and create a Data Warehouse for creation of patient centric and visit centric CCD’s.",
+                "Lead a team of 3 Associate Analysts in creation and export of CCD (Continuity of Care) documents.",
+                "Collaborated with a team on creating a Data Warehouse and stored procedures for migrating clinical patient data from Allscripts EEHR to EPIC",
+                "Enhanced the performance of older SSRS reports by eliminating unnecessary joins and columns.",
+                "Teamed up with Network Operations Team and created a custom SSRS report suite to pull data from SCCM & SolarWinds",
+                "Developed packages for multiple data extraction projects."
+            ],
+            "color": "yellow"
+        },
+        {
+            "company": "Kiren Solutions",
+            "position": "Lead Developer",
+            "location": "Vadodara",
+            "startDate": "Jun 2013",
+            "endDate": "Jan 2014",
+            "highlights": [
+                "Lead developer on two Phonegap based mobile applications using variety of frameworks and toolkits and worked with jQuery, Dojo, Foundation, and databases like MYSQL and SQLite"
+            ],
+            "color": "white"
+        }
+    ],
+    "education": [
+        {
+            "institution": "Sardar Vallabhbhai Patel Institute of Technology",
+            "area": "MCA",
+            "studyType": "Master",
+            "startDate": "2010",
+            "endDate": "2013",
+            "score": "CPI 8.01"
+        },
+        {
+            "institution": "The Maharaja Sayajirao University of Baroda",
+            "area": "BCA",
+            "studyType": "Bachelor",
+            "startDate": "2007",
+            "endDate": "2010",
+            "score": "58%"
+        }
+    ],
+    "certifications": [
+        {
+            "name": "Professional SCRUM Master (PSM I)",
+            "issuer": "Scrum.org"
+        }
+    ],
+    "skills": [
+        {
+            "name": "Software and Services",
+            "keywords": [
+                "SQL, T-SQL, Python",
+                "dbt, SSIS, AWS Glue",
+                "Snowflake, AWS Athena",
+                "SQL Server, PostgreSQL, MySQL",
+                "S3, Azure Blob Storage",
+                "Looker, Power BI, SSRS, Crystal Reports, Tableu",
+                "AWS, Azure, GCP",
+                "Git, SVN",
+                "JIRA, Confluence, Shortcut, Miro, Team Retro",
+                "Competent in Terraform"
+            ],
+            "color": "orange"
+        },
+        {
+            "name": "Data Skills",
+            "keywords": [
+                "Data Architecture & Optimization",
+                "Dimensional Modelling",
+                "Data Ingestion & CDC",
+                "Data Engineering",
+                "Data Modelling",
+                "Data Analysis",
+                "Data Migration",
+                "Data Visualization"
+            ],
+            "color": "white"
+        },
+        {
+            "name": "Technical Skills",
+            "keywords": [
+                "ETL",
+                "Analytics Engineering",
+                "Business Intelligence",
+                "Architectural Transformation",
+                "Architecture & Query Optimization",
+                "Data Mesh implementation",
+                "Decentralization"
+            ],
+            "color": "green"
+        },
+        {
+            "name": "Business Domains",
+            "keywords": [
+                "Healthcare",
+                "Travel Tech",
+                "Marketing Tech"
+            ],
+            "color": "red"
+        },
+        {
+            "name": "Interests",
+            "keywords": [
+                "Modern Data Stack",
+                "Anime: Shonen, Seinen, Action, Psychological, Slice of Life, Sci-Fi",
+                "Gaming: RPGs, Narrative Driven, Simulation, Action-Adventure",
+                "Music: Old School Rock, Hard Rock, Alternative, Metal"
+            ],
+            "color": "white"
+        },
+        {
+            "name": "Soft Skills",
+            "keywords": [
+                "SCRUM Master",
+                "Team Management & Project Management",
+                "Communication",
+                "Adaptability and Creative Thinking",
+                "Critical Thinking and Pragmatism",
+                "Conflict Resolution & Emotional Intelligence",
+                "Leader and Mentor",
+                "Tech Coach"
+            ],
+            "color": "blue"
+        }
+    ],
+    "summary_list": [
+        "11+ years of experience in SQL.",
+        "7 years of experience in the US Healthcare domain and 2 years in Marketing Technology, with 1+ years in Travel Tech.",
+        "Excel in harnessing Business Intelligence Tools, SQL Services, Data Warehouses, and Python.",
+        "Proficient in cloud environments like AWS & GCP and multiple visualization software like Looker, Power BI, SSRS, Tableau.",
+        "Certified SCRUM Master (PSM Level 1).",
+        "Proficient in efficiently managing vast amounts of information, expertly employing data analysis tools and techniques to extract actionable insights and drive resultant business action.",
+        "Adept at training, coaching, and providing leadership to team members, ensuring proficiency in products and workflows.",
+        "Thrive in high-speed environments & excel under tight deadlines.",
+        "Purposeful, Pragmatic and Relentlessly Driven."
+    ]
+}

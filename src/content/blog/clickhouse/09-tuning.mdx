@@ -1,0 +1,71 @@
+---
+title: "Part 9: Performance Tuning"
+date: 2023-10-09
+description: "Squeeze every ounce of performance out of ClickHouse with these tuning tips."
+tags: ["ClickHouse", "Performance", "Optimization", "Indexes"]
+part: "Part 9 of 10"
+cover: "../../../assets/images/clickhouse/part-9.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    ClickHouse is fast by default, but it can be blazing fast if you
+    know how to tune it. In this part, we'll cover indexes, compression,
+    and query optimization.
+</p>
+
+<h2>Primary Keys & Sorting</h2>
+<p>
+    The single most important factor for performance is your <code>ORDER BY</code> clause. It determines the primary key and how data is physically sorted
+    on disk.
+</p>
+<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-orange-500 my-8">
+    <h4 class="text-orange-300 font-bold mb-2">
+        Tip: Low Cardinality First
+    </h4>
+    <p>
+        Always put columns with lower cardinality (fewer unique values)
+        first in your primary key. This makes the index more effective.
+    </p>
+</div>
+
+<h2>Skipping Indexes</h2>
+<p>
+    For columns not in the primary key, you can use data skipping
+    indexes to speed up queries.
+</p>
+<pre class="language-sql">
+ALTER TABLE hits 
+ADD INDEX idx_user_agent user_agent TYPE set(0) GRANULARITY 1;
+</pre>
+
+<h2>Compression Codecs</h2>
+<p>
+    ClickHouse supports column-level compression. <code>ZSTD</code> is generally
+    the best balance between ratio and speed, while <code>Delta</code> is
+    amazing for time-series data.
+</p>
+<pre class="language-sql">
+CREATE TABLE metrics (
+    timestamp DateTime CODEC(Delta, ZSTD),
+    value Float64 CODEC(Gorilla, ZSTD)
+) ENGINE = MergeTree()
+ORDER BY timestamp;
+</pre>
+
+<h2>Query Optimization</h2>
+<p>
+    Use the <code>EXPLAIN</code> statement to understand how your query is
+    being executed. Look out for full table scans and inefficient joins.
+</p>
+
+<h2>Conclusion</h2>
+<p>
+    Tuning is an iterative process. Measure, tune, and measure again. In
+    the final part of this series, we'll discuss scaling ClickHouse to
+    handle petabytes of data.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/clickhouse/08-materialized-views" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 8 - Materialized Views</a>
+    <a href="/blog/clickhouse/10-scaling" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 10 - Scaling & Operations &rarr;</a>
+</div>
