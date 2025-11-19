@@ -1,31 +1,32 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import resume from "../content/resume.json";
 const pageTitle = "Ankur Kelkar – Resume";
 ---
 <BaseLayout title={pageTitle}>
   <div class="container mx-auto px-4 py-12">
-    <!-- Animated background pattern -->
     <div class="prose prose-invert lg:prose-xl mx-auto mb-16">
       <!-- Header Card -->
       <div class="bg-gradient-to-r from-slate-800/80 to-purple-900/80 backdrop-blur-md rounded-3xl p-8 mb-12 shadow-2xl border border-purple-500/20">
         <header class="text-center space-y-4">
           <h1 class="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 via-pink-300 to-yellow-100 mb-2">
-            Ankur Kelkar
+            {resume.basics.name}
           </h1>
-          <p class="text-xl text-gray-300 font-semibold">Analytics Engineer · Pune, India</p>
+          <p class="text-xl text-gray-300 font-semibold">{resume.basics.label} · {resume.basics.location}</p>
           
           <div class="flex flex-wrap justify-center gap-4 mt-6">
-            <a href="mailto:ankur.kelkar@gmail.com" class="px-4 py-2 bg-indigo-600/30 rounded-full text-indigo-300 hover:bg-indigo-600/50 transition">
-              ankur.kelkar@gmail.com
+            <a href={`mailto:${resume.basics.email}`} class="px-4 py-2 bg-indigo-600/30 rounded-full text-indigo-300 hover:bg-indigo-600/50 transition">
+              {resume.basics.email}
             </a>
-            <a href="tel:+919601702886" class="px-4 py-2 bg-pink-600/30 rounded-full text-pink-300 hover:bg-pink-600/50 transition">
-              +91 96017 02886
+            <a href={`tel:${resume.basics.phone}`} class="px-4 py-2 bg-pink-600/30 rounded-full text-pink-300 hover:bg-pink-600/50 transition">
+              {resume.basics.phone}
             </a>
           </div>
           
           <div class="flex justify-center space-x-8 mt-4">
-            <a href="https://linkedin.com/in/ankurkelkar" class="text-blue-400 hover:text-blue-300 font-semibold">LinkedIn</a>
-            <a href="https://twitter.com/ankyskywalker" class="text-cyan-400 hover:text-cyan-300 font-semibold">Twitter</a>
+            {resume.basics.profiles.map((profile) => (
+              <a href={profile.url} class="text-blue-400 hover:text-blue-300 font-semibold">{profile.network}</a>
+            ))}
           </div>
         </header>
       </div>
@@ -36,7 +37,7 @@ const pageTitle = "Ankur Kelkar – Resume";
           Profile
         </h2>
         <p class="text-gray-200 leading-relaxed text-lg">
-          Experienced Data Architect/Engineer with 10+ years in Travel Tech, Marketing Technology & Healthcare IT. Skilled in BI strategies, architectural transformation, and cost optimization. Expertise in Snowflake, dbt, Terraform, AWS services, Python, and BI tools.
+          {resume.basics.summary}
         </p>
       </section>
 
@@ -48,15 +49,9 @@ const pageTitle = "Ankur Kelkar – Resume";
         <div class="space-y-8">
           <div class="border-l-4 border-pink-500 pl-6">
             <ul class="space-y-2 text-gray-200">
-              <li>• 11+ years of experience in SQL.</li>
-              <li>• 7 years of experience in the US Healthcare domain and 2 years in Marketing Technology, with 1+ years in Travel Tech.</li>
-              <li>• Excel in harnessing Business Intelligence Tools, SQL Services, Data Warehouses, and Python.</li>
-              <li>• Proficient in cloud environments like AWS & GCP and multiple visualization software like Looker, Power BI, SSRS, Tableau.</li>
-              <li>• Certified SCRUM Master (PSM Level 1).</li>
-              <li>• Proficient in efficiently managing vast amounts of information, expertly employing data analysis tools and techniques to extract actionable insights and drive resultant business action.</li>
-              <li>• Adept at training, coaching, and providing leadership to team members, ensuring proficiency in products and workflows.</li>
-              <li>• Thrive in high-speed environments & excel under tight deadlines.</li>
-              <li>• Purposeful, Pragmatic and Relentlessly Driven.</li>
+              {resume.summary_list.map((item) => (
+                <li>• {item}</li>
+              ))}
             </ul>
           </div>
         </div>
@@ -69,83 +64,17 @@ const pageTitle = "Ankur Kelkar – Resume";
         </h2>
         
         <div class="space-y-8">
-          <div class="border-l-4 border-pink-500 pl-6">
-            <h3 class="text-xl font-bold text-pink-300">Senior Lead Engineer · Kipi.bi (Remote)</h3>
-            <p class="text-gray-400 font-medium mb-3">Jan 2023 – Present</p>
-            <ul class="space-y-2 text-gray-200">
-              <li>• Designed and implemented ETL/ELT pipelines using Python, SQL, and CI/CD</li>
-              <li>• Developed reusable data extraction pipelines with S3, Lambda, SQS, SNS, EventBridge</li>
-              <li>• Built Snowflake stored-procedure tasks for automated transformations</li>
-              <li>• Optimized data models for BI and ML workloads</li>
-              <li>• Working with Snowflake as the main Data Warehousing tool hosted on AWS.</li>
-              <li>• Worked on designing and implementing multiple ETL and ELT data pipelines using programming languages like Python and SQL and automated the code deployment through CI/CD pipelines.</li>
-              <li>• Created and optimized data models for the project keeping all BI and ML use cases in mind.</li>
-              <li>• Created multiple reusable data extraction pipelines using AWS services like S3, Lambda, SQS, SNS, Eventbridge & CodeCommit.</li>
-              <li>• Created multiple reusable data load and transformation pipelines using Snowflake Stored procedures & Tasks.</li>
-            </ul>
-          </div>
-
-          <div class="border-l-4 border-indigo-500 pl-6">
-            <h3 class="text-xl font-bold text-indigo-300">Analytics Engineer · Vio.com (Remote)</h3>
-            <p class="text-gray-400 font-medium mb-3">Feb 2022 – Dec 2023</p>
-            <ul class="space-y-2 text-gray-200">
-              <li>• Modelled terabyte scale data across 15+ projects in dbt along with a team of three people.</li>
-              <li>• Collaborated with the team to implement a Data Mesh Architecture, involving the restructuring of multiple dbt projects, establishment of new processes and standards across various domains, and educating the organization on best practices.</li>
-              <li> Pioneered an RFC (Request for Change) that improved financial data ingestion with a distributed architecture, eliminating single points of failure while delivering significant cost savings and heightened observability and robustness.</li>•
-              <li>• Achieved substantial cost savings of approximately 3,000 € per month by optimizing dbt pipelines through meticulous utilization of Snowflake query plans and industry best practices.</li>
-              <li>• Slashed incremental data processing time by 30% through the strategic incorporation of hash-based retrieval for efficiently identifying modified data.</li>
-              <li>• Elevated Looker reports' performance and precision by implementing advanced features like Aggregate Awareness, PDTs, and Parameterized table sources.</li>
-              <li>• Automated invoice ingestion, improving financial data accuracy and timeliness by 40%.</li>
-              <li>• Improved Kustomer and Stripe data ingestion for valuable insights and data-driven decisions.</li>
-            </ul>
-          </div>
-
-          <div class="border-l-4 border-green-500 pl-6">
-            <h3 class="text-xl font-bold text-green-300">Sr. Data Analyst · Demandbase Data Cloud (Pune)</h3>
-            <p class="text-gray-400 font-medium mb-3">Feb 2020 – Jan 2022</p>
-            <ul class="space-y-2 text-gray-200">
-              <li>• Lead a team of 3 Analysts to solve problems for Fortune 500 companies by leveraging technographic and firmographic data.</li>
-              <li>• Working on complex projects with AWS S3, AWS Athena, Presto and Python and dashboarding and visualizing data with Power BI</li>
-              <li>• Running the SCRUM and maintaining sprints on JIRA</li>
-            </ul>
-          </div>
-
-          <div class="border-l-4 border-cyan-500 pl-6">
-            <h3 class="text-xl font-bold text-cyan-300">Sr. SQL Developer · Radamatic Solutions Pvt. Ltd. (Pune)</h3>
-            <p class="text-gray-400 font-medium mb-3">Sep 2019 – Feb 2020</p>
-            <ul class="space-y-2 text-gray-200">
-              <li>• Worked on SQL Procedures Optimization for the product</li>
-              <li>• Data migration from Azure SQL Datawarehouse to Snowflake</li>
-            </ul>
-          </div>
-
-          <div class="border-l-4 border-yellow-500 pl-6">
-            <h3 class="text-xl font-bold text-yellow-300">Associate Systems Analyst -&gt Sr. System Analyst · Allscripts Healthcare Solutions Inc. (Vadodara)</h3>
-            <p class="text-gray-400 font-medium mb-3">Jan 2014 – Sep 2019</p>
-            <ul class="space-y-2 text-gray-200">
-              <li>• Lead a team of 8 analysts while managing several new and ongoing Business Intelligence and HL7 Integration projects for 5+ EHR clients while managing project timelines, resources and maintaining KPI’s.</li>
-              <li>• Seamlessly collaborated with onsite managers to plan future projects and resources for multiple ambulatory care clients.</li>
-              <li>• Mentored and coached team members in mastering the US Ambulatory Healthcare workflow, Allscripts EEHR, Allscripts PM</li>
-              <li>• Worked on multiple HL7 Interface engines like ConnectR, Rhapsody and eLink</li>
-              <li>• Collaborated with business unit teams and end users in planning and implementation of Data Migration of clinical data from Allscripts EEHR to EPIC</li>
-              <li>• Creation of a Data Warehouse, packages and HL7 interfaces to facilitate a continuous data transfer of patient data in multiple stages.</li>
-              <li>• Collaborated with EPIC and Oracle to plan and create a Data Warehouse for creation of patient centric and visit centric CCD’s.</li>
-              <li>• Lead a team of 3 Associate Analysts in creation and export of CCD (Continuity of Care) documents.</li>
-              <li>• Collaborated with a team on creating a Data Warehouse and stored procedures for migrating clinical patient data from Allscripts EEHR to EPIC</li>
-              <li>• Enhanced the performance of older SSRS reports by eliminating unnecessary joins and columns.</li>
-              <li>• Teamed up with Network Operations Team and created a custom SSRS report suite to pull data from SCCM & SolarWinds</li>
-              <li>• Developed packages for multiple data extraction projects.</li>
-            </ul>
-          </div>
-
-          <div class="border-l-4 border-white-500 pl-6">
-            <h3 class="text-xl font-bold text-white-300">Lead Developer · Kiren Solutions (Vadodara)</h3>
-            <p class="text-gray-400 font-medium mb-3">Jun 2013 – Jan 2014</p>
-            <ul class="space-y-2 text-gray-200">
-              <li>• Lead developer on two Phonegap based mobile applications using variety of frameworks and toolkits and worked with jQuery, Dojo, Foundation, and databases like MYSQL and SQLite</li>
-            </ul>
-          </div>
-
+          {resume.work.map((job) => (
+            <div class={`border-l-4 border-${job.color}-500 pl-6`}>
+              <h3 class={`text-xl font-bold text-${job.color}-300`}>{job.position} · {job.company} ({job.location})</h3>
+              <p class="text-gray-400 font-medium mb-3">{job.startDate} – {job.endDate}</p>
+              <ul class="space-y-2 text-gray-200">
+                {job.highlights.map((highlight) => (
+                  <li>• {highlight}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -156,8 +85,9 @@ const pageTitle = "Ankur Kelkar – Resume";
             Education
           </h2>
           <div class="space-y-2 border-l-4 border-pink-500 pl-6 text-gray-200">
-            <p><span class="font-bold">MCA</span>, Sardar Vallabhbhai Patel Institute of Technology · 2010–2013 · CPI 8.01</p>
-            <p><span class="font-bold">BCA</span>, The Maharaja Sayajirao University of Baroda · 2007–2010 · 58%</p>
+            {resume.education.map((edu) => (
+              <p><span class="font-bold">{edu.area}</span>, {edu.institution} · {edu.startDate}–{edu.endDate} · {edu.score}</p>
+            ))}
           </div>
         </section>
       </div>
@@ -169,7 +99,9 @@ const pageTitle = "Ankur Kelkar – Resume";
             Courses & Certifications
           </h2>
           <div class="space-y-2 border-l-4 border-blue-500 pl-6 text-gray-200">
-            <p>Professional SCRUM Master (PSM I), Scrum.org</p>
+            {resume.certifications.map((cert) => (
+              <p>{cert.name}, {cert.issuer}</p>
+            ))}
           </div>
         </section>
       </div>
@@ -181,95 +113,38 @@ const pageTitle = "Ankur Kelkar – Resume";
         </h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 mb-8">
-          <div class="space-y-3">
-            <span class="font-bold text-orange-500 text-xl">💻 Software and Services :</span> 
-            <div class="flex flex-wrap gap-3 border-l-3 border-orange-500 pl-4 mt-4">
-            <ul class="space-y-2 text-gray-200">
-              <li class="text-gray-200">• <em class="font-bold">Languages:</em> SQL, T-SQL, Python</li>
-              <li class="text-gray-200">• <em class="font-bold">ETL / ELT Tools:</em> dbt, SSIS, AWS Glue</li>
-              <li class="text-gray-200">• <em class="font-bold">MPP / Cloud DW:</em> Snowflake, AWS Athena</li>
-              <li class="text-gray-200">• <em class="font-bold">RDBMS:</em> SQL Server, PostgreSQL, MySQL</li>
-              <li class="text-gray-200">• <em class="font-bold">Cloud Storage:</em> S3, Azure Blob Storage</li>
-              <li class="text-gray-200">• <em class="font-bold">Analytical Reporting:</em> Looker, Power BI, SSRS, Crystal Reports, Tableu</li>
-              <li class="text-gray-200">• <em class="font-bold">Cloud platforms:</em>C AWS, Azure, GCP</li>
-              <li class="text-gray-200">• <em class="font-bold">Source Control:</em> Git, SVN</li>
-              <li class="text-gray-200">• <em class="font-bold">Project Management:</em> JIRA, Confluence, Shortcut, Miro, Team Retro</li>
-              <li class="text-gray-200">• <em class="font-bold">IAASS:</em>Competent in Terraform</li>
-            </ul>
+          {resume.skills.slice(0, 3).map((skill) => (
+            <div class="space-y-3">
+              <span class={`font-bold text-${skill.color}-500 text-xl`}>
+                {skill.name === "Software and Services" ? "💻 " : skill.name === "Data Skills" ? "📈 " : "🛠️ "}{skill.name} :
+              </span> 
+              <div class={`flex flex-wrap gap-3 border-l-3 border-${skill.color}-500 pl-4 mt-4`}>
+                <ul class="space-y-2 text-gray-200">
+                  {skill.keywords.map((keyword) => (
+                    <li class="text-gray-200">• <span set:html={keyword.replace(/(\w+:)/g, '<em class="font-bold">$1</em>')}></span></li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </div>
-
-          <div class="space-y-3">
-            <span class="font-bold text-white-500 text-xl">📈 Data Skills :</span> 
-            <div class="flex flex-wrap gap-3 border-l-3 border-white-500 pl-4 mt-4">
-            <ul class="space-y-2 text-gray-200">
-              <li class="text-gray-200">• Data Architecture & Optimization</li>
-              <li class="text-gray-200">• Dimensional Modelling</li>
-              <li class="text-gray-200">• Data Ingestion & CDC</li>
-              <li class="text-gray-200">• Data Engineering</li>
-              <li class="text-gray-200">• Data Modelling</li>
-              <li class="text-gray-200">• Data Analysis</li>
-              <li class="text-gray-200">• Data Migration</li>
-              <li class="text-gray-200">• Data Visualization</li>
-            </ul>
-            </div>
-          </div>
-
-          <div class="space-y-3">
-            <span class="font-bold text-green-600 text-xl">🛠️ Technical Skills :</span> 
-            <div class="flex flex-wrap gap-3 border-l-3 border-green-600 pl-4 mt-4">
-            <ul class="space-y-2 text-gray-200">
-              <li class="text-gray-200">• ETL</li>
-              <li class="text-gray-200">• Analytics Engineering</li>
-              <li class="text-gray-200">• Business Intelligence</li>
-              <li class="text-gray-200">• Architectural Transformation</li>
-              <li class="text-gray-200">• Architecture & Query Optimization</li>
-              <li class="text-gray-200">• Data Mesh implementation</li>
-              <li class="text-gray-200">• Decentralization</li>
-            </ul>
-            </div>
-          </div>
+          ))}
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 mb-8">
-          <div class="space-y-20">
-            <span class="font-bold text-red-500 text-xl">🏢 Business Domains</span> 
-            <div class="flex flex-wrap gap-3 border-l-3 border-red-500 pl-4 mt-4">
-            <ul class="space-y-2 text-gray-200">
-              <li class="text-gray-200">• Healthcare</li>
-              <li class="text-gray-200">• Travel Tech</li>
-              <li class="text-gray-200">• Marketing Tech</li>
-            </ul>
+          {resume.skills.slice(3).map((skill) => (
+            <div class="space-y-3">
+              <span class={`font-bold text-${skill.color}-500 text-xl`}>
+                {skill.name === "Business Domains" ? "🏢 " : skill.name === "Interests" ? "🌟 " : "🤝 "}{skill.name}
+                {skill.name !== "Interests" && skill.name !== "Business Domains" ? " :" : ""}
+              </span> 
+              <div class={`flex flex-wrap gap-3 border-l-3 border-${skill.color}-500 pl-4 mt-4`}>
+                <ul class="space-y-2 text-gray-200">
+                  {skill.keywords.map((keyword) => (
+                    <li class="text-gray-200">• <span set:html={keyword.replace(/(\w+:)/g, '<em class="font-bold">$1</em>')}></span></li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </div>
-
-          <div class="space-y-3">
-            <span class="font-bold text-white-500 text-xl">🌟 Interests</span> 
-            <div class="flex flex-wrap gap-3 border-l-3 border-white-500 pl-4 mt-4">
-            <ul class="space-y-2 text-gray-200">
-              <li class="text-gray-200">• Modern Data Stack</li>
-              <li class="text-gray-200">• <em class="font-bold">Anime:</em> Shonen, Seinen, Action, Psychological, Slice of Life, Sci-Fi</li>
-              <li class="text-gray-200">• <em class="font-bold">Gaming:</em> RPGs, Narrative Driven, Simulation, Action-Adventure</li>
-              <li class="text-gray-200">•  <em class="font-bold">Music:</em> Old School Rock, Hard Rock, Alternative, Metal</li>
-            </ul>
-            </div>
-          </div>
-
-          <div class="space-y-3">
-            <span class="font-bold text-blue-500 text-xl">🤝 Soft Skills :</span> 
-            <div class="flex flex-wrap gap-3 border-l-3 border-blue-500 pl-4 mt-4">
-            <ul class="space-y-2 text-gray-200">
-              <li class="text-gray-200">• SCRUM Master</li>
-              <li class="text-gray-200">• Team Management & Project Management</li>
-              <li class="text-gray-200">• Communication</li>
-              <li class="text-gray-200">• Adaptability and Creative Thinking</li>
-              <li class="text-gray-200">• Critical Thinking and Pragmatism</li>
-              <li class="text-gray-200">• Conflict Resolution & Emotional Intelligence</li>
-              <li class="text-gray-200">• Leader and Mentor</li>
-              <li class="text-gray-200">• Tech Coach</li>
-            </ul>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
