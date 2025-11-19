@@ -6,42 +6,65 @@ export interface Props {
 }
 const { title = "Ankur Kelkar – Data & Analytics Engineer" } = Astro.props;
 ---
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="en" class="dark scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title}</title>
-    <meta name="description" content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, dbt, Python, and Cloud Data Warehousing." />
-    
+    <meta
+      name="description"
+      content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, dbt, Python, and Cloud Data Warehousing."
+    />
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://ankurkelkar.com/" />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, dbt, Python, and Cloud Data Warehousing." />
+    <meta
+      property="og:description"
+      content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, dbt, Python, and Cloud Data Warehousing."
+    />
     <meta property="og:image" content="/og-image.png" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://ankurkelkar.com/" />
     <meta property="twitter:title" content={title} />
-    <meta property="twitter:description" content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, dbt, Python, and Cloud Data Warehousing." />
+    <meta
+      property="twitter:description"
+      content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, dbt, Python, and Cloud Data Warehousing."
+    />
     <meta property="twitter:image" content="/og-image.png" />
-    
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body class="bg-gradient-to-br from-[#120026] via-[#0f172a] to-[#2a003f] text-gray-100 antialiased flex flex-col min-h-screen">
+  <body
+    class="bg-gradient-to-br from-[#120026] via-[#0f172a] to-[#2a003f] text-gray-100 antialiased flex flex-col min-h-screen"
+  >
     <Header />
     <main class="flex-grow">
-    <div class="fixed inset-0 opacity-20 bg-[url('/grid.svg')] animate-pulse bg-repeat bg-center"></div>
-    <div class="absolute inset-0 bg-gradient-to-tr from-black-900/30 via-transparent to-pink-900/30"></div>
+      <div
+        class="fixed inset-0 opacity-20 bg-[url('/grid.svg')] animate-pulse bg-repeat bg-center"
+      >
+      </div>
+      <div
+        class="absolute inset-0 bg-gradient-to-tr from-black-900/30 via-transparent to-pink-900/30"
+      >
+      </div>
       <slot />
     </main>
     <footer class="bg-[#181026]/70 backdrop-blur-sm py-6 mt-12">
-      <div class="container mx-auto px-4 text-center text-xs text-gray-500 tracking-wider">
+      <div
+        class="container mx-auto px-4 text-center text-xs text-gray-500 tracking-wider"
+      >
         © {new Date().getFullYear()} Ankur Kelkar · Powered by Astro + Tailwind
       </div>
     </footer>
