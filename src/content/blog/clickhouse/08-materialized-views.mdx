@@ -1,0 +1,81 @@
+---
+title: "Part 8: Materialized Views"
+date: 2023-10-08
+description: "Real-time analytics made easy with ClickHouse Materialized Views."
+tags: ["ClickHouse", "Materialized Views", "Real-time", "AggregatingMergeTree"]
+part: "Part 8 of 10"
+cover: "../../../assets/images/clickhouse/part-8.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Materialized Views (MVs) in ClickHouse are not like standard SQL
+    views. They are triggers that insert data into a target table
+    whenever data is inserted into a source table.
+</p>
+
+<h2>The Concept</h2>
+<p>
+    Think of an MV as a real-time ETL pipeline that lives inside the
+    database. It processes data as it arrives, pre-aggregating it for
+    lightning-fast queries.
+</p>
+
+<h2>Creating a Materialized View</h2>
+<p>
+    The most common pattern is to use an <code>AggregatingMergeTree</code> engine for the target table.
+</p>
+<pre class="language-sql">
+-- 1. Create the target table
+CREATE TABLE daily_sales (
+    day Date,
+    total_revenue SimpleAggregateFunction(sum, UInt64)
+) ENGINE = AggregatingMergeTree()
+ORDER BY day;
+
+-- 2. Create the Materialized View
+CREATE MATERIALIZED VIEW daily_sales_mv TO daily_sales AS
+SELECT
+    toDate(timestamp) AS day,
+    sum(revenue) AS total_revenue
+FROM sales_raw
+GROUP BY day;
+</pre>
+
+<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-cyan-500 my-8">
+    <h4 class="text-cyan-300 font-bold mb-2">POPULATE Keyword</h4>
+    <p>
+        By default, MVs only process <strong>new</strong> data. If you want
+        to process existing data, you can use the <code>POPULATE</code> keyword,
+        but be careful—it blocks inserts during creation. A better approach
+        for backfilling is to create the MV without populate, and then run
+        an <code>INSERT INTO ... SELECT</code> statement.
+    </p>
+</div>
+
+<h2>Why Use Them?</h2>
+<ul class="list-disc list-inside text-gray-300 mb-6 space-y-2">
+    <li>
+        <strong>Speed:</strong> Queries run against pre-aggregated data,
+        often scanning 1000x fewer rows.
+    </li>
+    <li>
+        <strong>Storage:</strong> Aggregated data takes up much less space
+        than raw logs.
+    </li>
+    <li>
+        <strong>Simplicity:</strong> No need for external stream processors
+        like Kafka Streams or Spark for simple aggregations.
+    </li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>
+    Materialized Views are the secret weapon for building real-time
+    dashboards. In the next part, we'll look at how to tune ClickHouse
+    for maximum performance.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/clickhouse/07-advanced" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 7 - Advanced Features</a>
+    <a href="/blog/clickhouse/09-tuning" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 9 - Performance Tuning &rarr;</a>
+</div>

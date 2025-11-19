@@ -1,0 +1,52 @@
+---
+title: "Part 9: Application Development"
+date: 2023-11-09
+description: "Writing code that survives. Why you need retry logic for serializable transactions."
+tags: ["CockroachDB", "Development", "Golang", "Python"]
+part: "Part 9 of 10"
+cover: "../../../assets/images/cockroach/part-9.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Developing for CockroachDB is 95% like developing for Postgres. The other 5% is handling transaction retries.
+</p>
+
+<h2>The 40001 Error</h2>
+<p>
+    Because CockroachDB uses Optimistic Concurrency Control (OCC) for serializable isolation, transactions can conflict. When they do, one of them has to restart.
+</p>
+<p>
+    You will see this error: <code>ERROR: restart transaction (SQLSTATE 40001)</code>.
+</p>
+
+<h2>Client-Side Retries</h2>
+<p>
+    Your application code MUST handle this error and retry the transaction.
+</p>
+<p>
+    Most modern drivers have this built-in or have middleware for it.
+</p>
+```python
+# Pseudo-code for retry logic
+while True:
+    try:
+        run_transaction()
+        break
+    except SerializationFailure:
+        continue
+```
+
+<h2>Idempotency</h2>
+<p>
+    Because transactions can be retried, your operations should be idempotent. Don't send an email inside a transaction unless you want the user to receive it 5 times!
+</p>
+
+<h2>Conclusion</h2>
+<p>
+    Handling retries is a small price to pay for guaranteed consistency. In the final part, we'll look at how to operate this beast in production.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/cockroach/08-geo-partitioning" class="text-purple-400 hover:text-purple-300 font-bold">&larr; Part 8 - Geo-Partitioning</a>
+    <a href="/blog/cockroach/10-operations" class="text-purple-400 hover:text-purple-300 font-bold">Next: Part 10 - Operations &rarr;</a>
+</div>

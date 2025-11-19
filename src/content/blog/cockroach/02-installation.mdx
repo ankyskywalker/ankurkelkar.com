@@ -1,0 +1,72 @@
+---
+title: "Part 2: Installation & Cluster Setup"
+date: 2023-11-02
+description: "Spinning up a local CockroachDB cluster with Docker in under 5 minutes."
+tags: ["CockroachDB", "Installation", "Docker"]
+part: "Part 2 of 10"
+cover: "../../../assets/images/cockroach/part-2.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Theory is great, but let's get our hands dirty. We're going to spin up a 3-node CockroachDB cluster on your local machine using Docker.
+</p>
+
+<h2>Why 3 Nodes?</h2>
+<p>
+    You can run a single node, but that's boring. CockroachDB shines when it's distributed. With 3 nodes, we can simulate failures and see how the cluster self-heals.
+</p>
+
+<h2>Step 1: Create a Network</h2>
+<p>
+    First, let's create a Docker network so our nodes can talk to each other.
+</p>
+```bash
+docker network create -d bridge roachnet
+```
+
+<h2>Step 2: Start the Nodes</h2>
+<p>
+    Run these commands to start three nodes:
+</p>
+```bash
+# Node 1
+docker run -d --name=roach1 --hostname=roach1 --net=roachnet -p 26257:26257 -p 8080:8080 cockroachdb/cockroach:latest start-single-node --insecure
+
+# Wait... actually, let's do a proper 3-node cluster.
+# Stop that single node first if you ran it.
+
+# Node 1
+docker run -d --name=roach1 --hostname=roach1 --net=roachnet -p 26257:26257 -p 8080:8080 cockroachdb/cockroach:latest start --insecure --join=roach1,roach2,roach3
+
+# Node 2
+docker run -d --name=roach2 --hostname=roach2 --net=roachnet cockroachdb/cockroach:latest start --insecure --join=roach1,roach2,roach3
+
+# Node 3
+docker run -d --name=roach3 --hostname=roach3 --net=roachnet cockroachdb/cockroach:latest start --insecure --join=roach1,roach2,roach3
+```
+
+<h2>Step 3: Initialize the Cluster</h2>
+<p>
+    The nodes are running, but they aren't a cluster yet. We need to tell them to join forces.
+</p>
+```bash
+docker exec -it roach1 ./cockroach init --insecure
+```
+<p>
+    You should see: <code>Cluster successfully initialized</code>.
+</p>
+
+<h2>Step 4: Access the Dashboard</h2>
+<p>
+    Open your browser and go to <a href="http://localhost:8080" class="text-purple-400 hover:underline">http://localhost:8080</a>. You'll see the beautiful DB Console showing 3 live nodes.
+</p>
+
+<h2>Conclusion</h2>
+<p>
+    You now have a distributed database running on your laptop. In the next part, we'll connect to it using SQL and see how it compares to Postgres.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/cockroach/01-intro" class="text-purple-400 hover:text-purple-300 font-bold">&larr; Part 1 - Introduction</a>
+    <a href="/blog/cockroach/03-sql-compatibility" class="text-purple-400 hover:text-purple-300 font-bold">Next: Part 3 - SQL & Postgres &rarr;</a>
+</div>
