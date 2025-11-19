@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import BlogLayout from "../../../layouts/BlogLayout.astro";
+import { Image } from "astro:assets";
+
+export async function getStaticPaths() {
+    const blogEntries = await getCollection("blog");
+    // Filter for cockroach posts
+    const cockroachEntries = blogEntries.filter((entry) =>
+        entry.slug.startsWith("cockroach/"),
+    );
+
+    return cockroachEntries.map((entry) => ({
+        params: { slug: entry.slug.replace("cockroach/", "") },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<BlogLayout
+    title={entry.data.title}
+    date={entry.data.date}
+    description={entry.data.description}
+    tags={entry.data.tags}
+    part={entry.data.part}
+    readTime="10 min read"
+>
+    <div class="prose-content">
+        {
+            entry.data.cover && (
+                <Image
+                    src={entry.data.cover}
+                    alt={entry.data.title}
+                    class="w-full h-64 object-cover rounded-xl mb-8 shadow-2xl"
+                />
+            )
+        }
+        <Content />
+    </div>
+</BlogLayout>

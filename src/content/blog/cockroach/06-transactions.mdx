@@ -1,0 +1,49 @@
+---
+title: "Part 6: Transactions & Consistency"
+date: 2023-11-06
+description: "ACID isn't just a buzzword. How CockroachDB guarantees serializable isolation."
+tags: ["CockroachDB", "Transactions", "ACID"]
+part: "Part 6 of 10"
+cover: "../../../assets/images/cockroach/part-6.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Most NoSQL databases sacrifice consistency for scale. CockroachDB refuses to compromise. It gives you both.
+</p>
+
+<h2>Serializable Isolation</h2>
+<p>
+    In the database world, "Serializable" is the gold standard. It means the database behaves as if transactions were executed one after another, even if they actually ran in parallel.
+</p>
+<p>
+    CockroachDB runs at <strong>Serializable Isolation</strong> by default. You cannot lower it. This means you never have to worry about:
+</p>
+<ul class="list-disc ml-4 space-y-2 text-gray-300">
+    <li>Dirty Reads</li>
+    <li>Non-repeatable Reads</li>
+    <li>Phantom Reads</li>
+</ul>
+
+<h2>Time Travel Queries</h2>
+<p>
+    Because CockroachDB uses Multi-Version Concurrency Control (MVCC), it keeps old versions of your data for a configurable amount of time (default 25 hours).
+</p>
+<p>
+    You can query the database as it existed in the past!
+</p>
+```sql
+SELECT * FROM users AS OF SYSTEM TIME '-10m';
+```
+<p>
+    This is incredibly useful for debugging or generating consistent reports without locking tables.
+</p>
+
+<h2>Conclusion</h2>
+<p>
+    Strong consistency makes building applications much easier. You don't have to handle weird race conditions in your code. But consistency comes at a cost: performance. Let's tune it.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/cockroach/05-fault-tolerance" class="text-purple-400 hover:text-purple-300 font-bold">&larr; Part 5 - Fault Tolerance</a>
+    <a href="/blog/cockroach/07-performance" class="text-purple-400 hover:text-purple-300 font-bold">Next: Part 7 - Performance Tuning &rarr;</a>
+</div>

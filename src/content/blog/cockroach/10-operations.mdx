@@ -1,0 +1,46 @@
+---
+title: "Part 10: Operations & Monitoring"
+date: 2023-11-10
+description: "Day 2 operations. Backups, upgrades, and keeping the lights on."
+tags: ["CockroachDB", "Operations", "DevOps"]
+part: "Part 10 of 10"
+cover: "../../../assets/images/cockroach/part-10.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Congratulations! You've made it to the end. You know how to build apps, but how do you keep the database running?
+</p>
+
+<h2>Backups</h2>
+<p>
+    CockroachDB supports distributed backups to object storage (S3, GCS).
+</p>
+```sql
+BACKUP DATABASE defaultdb TO 's3://my-bucket/backups';
+```
+<p>
+    Because it's distributed, every node uploads its own ranges in parallel. It's incredibly fast.
+</p>
+
+<h2>Monitoring</h2>
+<p>
+    The built-in DB Console is great, but for production, you should export metrics to Prometheus and visualize them in Grafana.
+</p>
+<p>
+    Key metrics to watch:
+</p>
+<ul class="list-disc ml-4 space-y-2 text-gray-300">
+    <li><strong>SQL Latency:</strong> Is it getting slower?</li>
+    <li><strong>CPU Usage:</strong> Are nodes overloaded?</li>
+    <li><strong>Under-replicated Ranges:</strong> Are you at risk of data loss?</li>
+</ul>
+
+<h2>Final Thoughts</h2>
+<p>
+    CockroachDB is a powerful tool. It solves scalability and consistency problems that used to require an army of engineers. Go forth and build resilient applications!
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/cockroach/09-app-development" class="text-purple-400 hover:text-purple-300 font-bold">&larr; Part 9 - App Development</a>
+    <a href="/blog/cockroach/01-intro" class="text-purple-400 hover:text-purple-300 font-bold">Start Over: Part 1 - Introduction &rarr;</a>
+</div>

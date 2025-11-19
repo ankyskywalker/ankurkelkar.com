@@ -1,43 +1,30 @@
 ---
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
 
-// Static blog posts data
-const posts = [
-  {
-    slug: '01-clickhouse-fundamentals',
-    title: 'ClickHouse Fundamentals: The Database That Actually Makes Analytics Fun',
-    date: new Date('2025-07-01'),
-    description: "Let's dive into ClickHouse together - no intimidating jargon, just a warm welcome to your new favorite database.",
-    tags: ['ClickHouse', 'OLAP', 'Getting Started'],
-    part: 'Part 1'
-  },
-  {
-    slug: '02-clickhouse-modelling',
-    title: 'ClickHouse Data Modeling: Practical Patterns and Schema Design',
-    date: new Date('2025-07-03'),
-    description: "Design fast, future-proof ClickHouse tables. Learn MergeTree engines, partitioning, and order keys the fun way.",
-    tags: ['ClickHouse', 'Data Modeling', 'MergeTree', 'Analytics'],
-    part: 'Part 2'
-  },
-  {
-    slug: '03-clickhouse-ingestion',
-    title: 'ClickHouse ETL & Data Ingestion: Feeding the Analytics Beast',
-    date: new Date('2025-08-16'),
-    description: "Master the art of getting data into ClickHouse efficiently, from simple batch loads to real-time streaming pipelines.",
-    tags: ['ClickHouse', 'ETL', 'Data Pipeline', 'Kafka'],
-    part: 'Part 3'
-  }
-  // Add more posts here as you create them
-].sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf());
+const allPosts = await getCollection("blog");
+const posts = allPosts
+  .filter((post) => post.data.draft !== true)
+  .sort((a, b) => a.data.date.valueOf() - b.data.date.valueOf())
+  .map((post) => ({
+    slug: post.slug,
+    title: post.data.title,
+    date: post.data.date,
+    description: post.data.description,
+    tags: post.data.tags,
+    part: post.data.part,
+  }));
 
-const pageTitle = "Blog - ClickHouse Learning Journey";
+const pageTitle = "Blog";
 ---
 
 <BaseLayout title={pageTitle}>
   <div class="container mx-auto px-4 py-12">
     <!-- Header Section -->
     <div class="text-center mb-16">
-      <h1 class="text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-pink-400 to-yellow-200 mb-6">
+      <h1
+        class="text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-pink-400 to-yellow-200 mb-6"
+      >
         Blog
       </h1>
       <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
@@ -47,85 +34,106 @@ const pageTitle = "Blog - ClickHouse Learning Journey";
 
     <!-- Featured Series -->
     <section class="mb-16">
-      <div class="bg-gradient-to-r from-slate-800/80 to-purple-900/80 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-purple-500/20">
-        <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-300 mb-6">
+      <div
+        class="bg-gradient-to-r from-slate-800/80 to-purple-900/80 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-purple-500/20"
+      >
+        <h2
+          class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-300 mb-6"
+        >
           🚀 Featured Series: ClickHouse Mastery
         </h2>
         <p class="text-gray-200 text-lg mb-6">
-          Join me on a journey from ClickHouse newcomer to confident practitioner. 
-          Just practical learning with a dash of humor.
+          Join me on a journey from ClickHouse newcomer to confident
+          practitioner. Just practical learning with a dash of humor.
         </p>
         <div class="flex flex-wrap gap-3">
-          <span class="px-3 py-1 bg-indigo-600/30 rounded-full text-indigo-300 text-sm">OLAP Databases</span>
-          <span class="px-3 py-1 bg-pink-600/30 rounded-full text-pink-300 text-sm">Real-time Analytics</span>
-          <span class="px-3 py-1 bg-yellow-600/30 rounded-full text-yellow-300 text-sm">Production Ready</span>
+          <span
+            class="px-3 py-1 bg-indigo-600/30 rounded-full text-indigo-300 text-sm"
+            >OLAP Databases</span
+          >
+          <span
+            class="px-3 py-1 bg-pink-600/30 rounded-full text-pink-300 text-sm"
+            >Real-time Analytics</span
+          >
+          <span
+            class="px-3 py-1 bg-yellow-600/30 rounded-full text-yellow-300 text-sm"
+            >Production Ready</span
+          >
         </div>
       </div>
     </section>
 
     <!-- Blog Posts Grid -->
     <section class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-      {posts.map((post, index) => (
-        <article class="group bg-slate-800/60 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-700/30 hover:border-pink-500/50 transition-all duration-300 hover:-translate-y-2">
-          <div class="mb-4">
-            <div class="flex items-center justify-between text-sm text-gray-400 mb-3">
-              <time datetime={post.date.toISOString()}>
-                {post.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-              </time>
-              {post.part && (
-                <span class="px-2 py-1 bg-pink-600/30 rounded text-pink-300 text-xs font-semibold">
-                  {post.part}
-                </span>
+      {
+        posts.map((post) => (
+          <article class="group bg-slate-800/60 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-700/30 hover:border-pink-500/50 transition-all duration-300 hover:-translate-y-2">
+            <div class="mb-4">
+              <div class="flex items-center justify-between text-sm text-gray-400 mb-3">
+                <time datetime={post.date.toISOString()}>
+                  {post.date.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </time>
+                {post.part && (
+                  <span class="px-2 py-1 bg-pink-600/30 rounded text-pink-300 text-xs font-semibold">
+                    {post.part}
+                  </span>
+                )}
+              </div>
+              <h3 class="text-xl font-bold text-gray-100 group-hover:text-pink-300 transition-colors mb-3">
+                <a href={`/blog/${post.slug}`} class="hover:underline">
+                  {post.title}
+                </a>
+              </h3>
+              <p class="text-gray-300 leading-relaxed mb-4">
+                {post.description}
+              </p>
+              {post.tags && post.tags.length > 0 && (
+                <div class="flex flex-wrap gap-2 mb-4">
+                  {post.tags.map((tag) => (
+                    <span class="px-2 py-1 bg-indigo-600/20 rounded text-indigo-300 text-xs">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
-            
-            <h3 class="text-xl font-bold text-gray-100 group-hover:text-pink-300 transition-colors mb-3">
-              <a href={`/blog/${post.slug}`} class="hover:underline">
-                {post.title}
-              </a>
-            </h3>
-            
-            <p class="text-gray-300 leading-relaxed mb-4">
-              {post.description}
-            </p>
-
-            {post.tags && post.tags.length > 0 && (
-              <div class="flex flex-wrap gap-2 mb-4">
-                {post.tags.map((tag) => (
-                  <span class="px-2 py-1 bg-indigo-600/20 rounded text-indigo-300 text-xs">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <a 
-            href={`/blog/${post.slug}`}
-            class="inline-flex items-center text-pink-400 hover:text-pink-300 font-medium group-hover:translate-x-1 transition-all"
-          >
-            Read Article →
-          </a>
-        </article>
-      ))}
+            <a
+              href={`/blog/${post.slug}`}
+              class="inline-flex items-center text-pink-400 hover:text-pink-300 font-medium group-hover:translate-x-1 transition-all"
+            >
+              Read Article →
+            </a>
+          </article>
+        ))
+      }
     </section>
 
     <!-- Newsletter Signup -->
     <section class="mt-20">
-      <div class="bg-gradient-to-r from-purple-900/80 to-pink-900/80 backdrop-blur-md rounded-3xl p-12 text-center shadow-2xl border border-purple-500/20">
-        <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-pink-300 mb-4">
+      <div
+        class="bg-gradient-to-r from-purple-900/80 to-pink-900/80 backdrop-blur-md rounded-3xl p-12 text-center shadow-2xl border border-purple-500/20"
+      >
+        <h2
+          class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-200 to-pink-300 mb-4"
+        >
           Stay in the Loop
         </h2>
         <p class="text-gray-200 text-lg mb-8 max-w-2xl mx-auto">
           Get notified when I publish new tutorials and insights.
         </p>
         <div class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-          <input 
-            type="email" 
-            placeholder="your.email@domain.com" 
+          <input
+            type="email"
+            placeholder="your.email@domain.com"
             class="flex-1 px-4 py-3 bg-slate-800/80 border border-gray-600 rounded-lg text-gray-100 placeholder-gray-400 focus:border-pink-400 focus:outline-none"
           />
-          <button class="px-6 py-3 bg-gradient-to-r from-pink-600 to-yellow-400 text-gray-900 font-bold rounded-lg hover:scale-105 transform transition-all">
+          <button
+            class="px-6 py-3 bg-gradient-to-r from-pink-600 to-yellow-400 text-gray-900 font-bold rounded-lg hover:scale-105 transform transition-all"
+          >
             Subscribe
           </button>
         </div>

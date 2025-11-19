@@ -1,0 +1,54 @@
+---
+title: "Part 2: Installation & Quick Start"
+date: 2023-10-02
+description: "Get ClickHouse up and running in minutes using Docker or native binaries."
+tags: ["ClickHouse", "Installation", "Docker", "SQL"]
+part: "Part 2 of 10"
+cover: "../../../assets/images/clickhouse/part-2.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Ready to start querying? Let's get ClickHouse installed. We'll use
+    Docker for the quickest setup, but you can also install it natively
+    on Linux or macOS.
+</p>
+
+<h2>Using Docker</h2>
+<p>
+    The easiest way to try ClickHouse is via Docker. Run the following
+    command:
+</p>
+<pre class="language-bash">
+docker run -d --name clickhouse-server --ulimit nofile=262144:262144 -p 8123:8123 -p 9000:9000 clickhouse/clickhouse-server
+</pre>
+
+<h2>Connecting to the Client</h2>
+<p>
+    Once the container is running, you can connect using the
+    command-line client:
+</p>
+<pre class="language-bash">
+docker exec -it clickhouse-server clickhouse-client
+</pre>
+<p>
+    You should see a prompt like <code>:)</code>. This is the friendly
+    ClickHouse smiley!
+</p>
+
+<h2>Your First Query</h2>
+<p>Let's verify everything is working:</p>
+<pre class="language-sql">
+SELECT 'Hello, ClickHouse!'
+</pre>
+
+<h2>Conclusion</h2>
+<p>
+    That was easy! You now have a running ClickHouse server. In the next
+    part, we'll dive into the most important engine in ClickHouse:
+    MergeTree.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/clickhouse/01-intro" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 1 - Introduction</a>
+    <a href="/blog/clickhouse/03-mergetree" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 3 - The MergeTree Family &rarr;</a>
+</div>

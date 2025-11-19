@@ -1,0 +1,58 @@
+---
+title: "Part 4: Data Modeling & Schema Design"
+date: 2023-11-04
+description: "How to design tables for a distributed system. Why UUIDs are your best friend and SERIAL is your enemy."
+tags: ["CockroachDB", "Data Modeling", "Schema"]
+part: "Part 4 of 10"
+cover: "../../../assets/images/cockroach/part-4.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    In a single-node database, you don't worry much about where data lives. In a distributed database, <strong>data locality</strong> is everything.
+</p>
+
+<h2>The Primary Key is King</h2>
+<p>
+    In CockroachDB, the Primary Key determines how data is sorted and distributed across the cluster. It's not just a unique constraint; it's the physical location of your data.
+</p>
+
+<h2>The Problem with SERIAL</h2>
+<p>
+    In Postgres, we love <code>SERIAL</code> (auto-incrementing integers). In CockroachDB, this is a bad idea.
+</p>
+<p>
+    Why? Because <code>1, 2, 3, 4...</code> are all close together. This creates a "hot range". All your writes will go to the single node that holds the end of the table.
+</p>
+
+<h2>Enter UUIDs</h2>
+<p>
+    Use <code>UUID</code> for primary keys. They are random, which means your data is spread evenly across all ranges (and thus all nodes).
+</p>
+```sql
+-- Good
+CREATE TABLE orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    amount DECIMAL
+);
+```
+
+<h2>JSONB Support</h2>
+<p>
+    CockroachDB has excellent support for <code>JSONB</code> (Binary JSON). This allows you to have a semi-structured schema, which is great for rapid development.
+</p>
+```sql
+SELECT * FROM users WHERE metadata->>'role' = 'admin';
+```
+<p>
+    You can even create inverted indexes on JSONB columns for blazing fast lookups.
+</p>
+
+<h2>Conclusion</h2>
+<p>
+    Distributed data modeling requires a shift in thinking. Avoid hotspots, use UUIDs, and leverage JSONB. Next, let's break things.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/cockroach/03-sql-compatibility" class="text-purple-400 hover:text-purple-300 font-bold">&larr; Part 3 - SQL Compatibility</a>
+    <a href="/blog/cockroach/05-fault-tolerance" class="text-purple-400 hover:text-purple-300 font-bold">Next: Part 5 - Fault Tolerance &rarr;</a>
+</div>

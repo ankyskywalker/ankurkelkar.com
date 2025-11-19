@@ -1,0 +1,58 @@
+---
+title: "Part 3: SQL & PostgreSQL Compatibility"
+date: 2023-11-03
+description: "It speaks SQL, but it's not Postgres. Understanding the wire protocol and key differences."
+tags: ["CockroachDB", "SQL", "PostgreSQL"]
+part: "Part 3 of 10"
+cover: "../../../assets/images/cockroach/part-3.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    One of CockroachDB's smartest moves was adopting the PostgreSQL wire protocol. This means you can use almost any Postgres tool or driver to talk to CockroachDB.
+</p>
+
+<h2>The Wire Protocol</h2>
+<p>
+    CockroachDB doesn't have its own custom driver. It speaks <code>pgwire</code>. This means you can use <code>psql</code>, DBeaver, or the standard Postgres drivers for Go, Python, Java, etc.
+</p>
+```bash
+# Connecting with psql
+psql "postgresql://root@localhost:26257/defaultdb?sslmode=disable"
+```
+
+<h2>It's Not Postgres</h2>
+<p>
+    While it <em>looks</em> like Postgres, it's not. It's a distributed system written in Go.
+</p>
+<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-yellow-500 my-8">
+    <h4 class="text-yellow-300 font-bold mb-2">Key Differences</h4>
+    <ul class="list-disc ml-4 space-y-2 text-gray-300">
+        <li><strong>No Stored Procedures:</strong> (Mostly). Logic should live in your app layer.</li>
+        <li><strong>No Triggers:</strong> Use Change Data Capture (CDC) instead.</li>
+        <li><strong>Serializable Isolation:</strong> CockroachDB runs at the highest isolation level by default. No dirty reads, ever.</li>
+    </ul>
+</div>
+
+<h2>Standard SQL Support</h2>
+<p>
+    It supports standard SQL syntax: <code>JOIN</code>, <code>GROUP BY</code>, Window Functions, CTEs, and JSONB operations.
+</p>
+```sql
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name STRING,
+    metadata JSONB
+);
+
+INSERT INTO users (name, metadata) VALUES ('Alice', '{"role": "admin"}');
+```
+
+<h2>Conclusion</h2>
+<p>
+    The Postgres compatibility is a huge productivity booster. You don't need to learn a new query language. But you DO need to learn how to model your data for a distributed system. That's next.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/cockroach/02-installation" class="text-purple-400 hover:text-purple-300 font-bold">&larr; Part 2 - Installation</a>
+    <a href="/blog/cockroach/04-data-modeling" class="text-purple-400 hover:text-purple-300 font-bold">Next: Part 4 - Data Modeling &rarr;</a>
+</div>

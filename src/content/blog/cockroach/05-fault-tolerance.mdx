@@ -1,0 +1,49 @@
+---
+title: "Part 5: Fault Tolerance & High Availability"
+date: 2023-11-05
+description: "Killing nodes for fun and profit. How CockroachDB survives failures without waking you up at 3 AM."
+tags: ["CockroachDB", "High Availability", "Resilience"]
+part: "Part 5 of 10"
+cover: "../../../assets/images/cockroach/part-5.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    The "Cockroach" name comes from the idea that it's hard to kill. Let's see how it handles failure.
+</p>
+
+<h2>Replication Factor</h2>
+<p>
+    By default, every range is replicated 3 times. This means you can lose 1 node and still have a majority (2/3) to continue accepting writes.
+</p>
+
+<h2>Scenario: Node Failure</h2>
+<p>
+    Imagine you have 3 nodes: A, B, C.
+</p>
+<ol class="list-decimal ml-4 space-y-2 text-gray-300">
+    <li>Node A dies (someone tripped over the power cord).</li>
+    <li>The cluster notices Node A is gone.</li>
+    <li>For the ranges where Node A was the Leaseholder, the remaining replicas (on B and C) hold an election.</li>
+    <li>A new Leaseholder is chosen within seconds.</li>
+    <li>The cluster continues serving traffic.</li>
+</ol>
+
+<h2>Self-Healing</h2>
+<p>
+    If Node A stays down for more than 5 minutes, the cluster assumes it's gone for good. It will start creating new replicas of the missing ranges on other nodes (if available) to get back to the replication factor of 3.
+</p>
+
+<h2>Zero Downtime Upgrades</h2>
+<p>
+    Because of this architecture, you can perform rolling upgrades with zero downtime. Stop a node, upgrade the binary, start it back up. Repeat.
+</p>
+
+<h2>Conclusion</h2>
+<p>
+    High availability isn't an add-on; it's the default. You sleep better at night knowing your database can handle a node failure. But what about data consistency?
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/cockroach/04-data-modeling" class="text-purple-400 hover:text-purple-300 font-bold">&larr; Part 4 - Data Modeling</a>
+    <a href="/blog/cockroach/06-transactions" class="text-purple-400 hover:text-purple-300 font-bold">Next: Part 6 - Transactions &rarr;</a>
+</div>

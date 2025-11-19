@@ -1,0 +1,59 @@
+---
+title: "Part 8: Geo-Partitioning"
+date: 2023-11-08
+description: "The killer feature. Pinning data to specific regions to reduce latency and comply with GDPR."
+tags: ["CockroachDB", "Geo-Partitioning", "Multi-Region"]
+part: "Part 8 of 10"
+cover: "../../../assets/images/cockroach/part-8.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    This is it. The feature that makes CockroachDB unique. <strong>Geo-Partitioning</strong> allows you to control where your data lives at the row level.
+</p>
+
+<h2>The Speed of Light Problem</h2>
+<p>
+    If your user is in London and your database is in New York, every query takes at least 70ms (round trip). You can't beat physics.
+</p>
+<p>
+    Solution: Move the data to London.
+</p>
+
+<h2>Multi-Region Abstraction</h2>
+<p>
+    CockroachDB makes this easy with declarative SQL.
+</p>
+```sql
+ALTER DATABASE defaultdb ADD REGION "us-east1";
+ALTER DATABASE defaultdb ADD REGION "europe-west1";
+ALTER DATABASE defaultdb ADD REGION "asia-south1";
+```
+
+<h2>Regional Tables</h2>
+<p>
+    You can optimize a table for access from a specific region:
+</p>
+```sql
+ALTER TABLE users SET LOCALITY REGIONAL BY TABLE IN "europe-west1";
+```
+
+<h2>Regional by Row</h2>
+<p>
+    Or, you can split the table so that US users live in the US, and EU users live in the EU!
+</p>
+```sql
+ALTER TABLE orders SET LOCALITY REGIONAL BY ROW;
+```
+<p>
+    Now, a user in London reads from the London node (fast!), and a user in New York reads from the New York node (fast!).
+</p>
+
+<h2>Conclusion</h2>
+<p>
+    Geo-partitioning solves both latency and compliance (GDPR) issues. It's a game changer for global applications.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/cockroach/07-performance" class="text-purple-400 hover:text-purple-300 font-bold">&larr; Part 7 - Performance Tuning</a>
+    <a href="/blog/cockroach/09-app-development" class="text-purple-400 hover:text-purple-300 font-bold">Next: Part 9 - App Development &rarr;</a>
+</div>

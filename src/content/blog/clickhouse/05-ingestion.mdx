@@ -1,0 +1,76 @@
+---
+title: "Part 5: Ingestion"
+date: 2023-10-05
+description: "Getting data into ClickHouse: INSERTs, Formats, and Integrations."
+tags: ["ClickHouse", "Ingestion", "Formats", "Integrations"]
+part: "Part 5 of 10"
+cover: "../../../assets/images/clickhouse/part-5.png"
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    ClickHouse is hungry. It wants your data, and it wants it fast. In
+    this part, we'll cover the best ways to feed the beast.
+</p>
+
+<h2>The Golden Rule of Ingestion</h2>
+<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-yellow-500 my-8">
+    <h4 class="text-yellow-300 font-bold mb-2">Batch Your Inserts!</h4>
+    <p>
+        Never insert row by row. Always insert in large batches (at
+        least 1,000 rows, ideally 10,000+). Each insert creates a file
+        on disk, and too many small files will choke the server.
+    </p>
+</div>
+
+<h2>Formats</h2>
+<p>ClickHouse supports dozens of formats. The most common ones are:</p>
+<ul class="list-disc ml-4 space-y-2 text-gray-300">
+    <li>
+        <strong>RowBinary:</strong> The fastest format. Use this if you can.
+    </li>
+    <li>
+        <strong>Native:</strong> ClickHouse's internal format. Extremely
+        fast.
+    </li>
+    <li>
+        <strong>JSONEachRow:</strong> Great for flexibility and debugging.
+    </li>
+    <li><strong>CSV/TSV:</strong> Good for legacy data.</li>
+</ul>
+
+<h2>Inserting Data</h2>
+<pre class="language-sql">
+-- Standard INSERT
+INSERT INTO hits (timestamp, user_id, url) VALUES 
+('2023-01-01 12:00:00', 1, '/home'),
+('2023-01-01 12:00:01', 2, '/about');
+
+-- Inserting from a file (CLI)
+clickhouse-client --query "INSERT INTO hits FORMAT CSV" &lt; data.csv
+</pre>
+
+<h2>Integrations</h2>
+<p>You can ingest data from almost anywhere:</p>
+<ul class="list-disc ml-4 space-y-2 text-gray-300">
+    <li>
+        <strong>Kafka:</strong> Use the Kafka table engine for direct streaming.
+    </li>
+    <li>
+        <strong>S3/GCS:</strong> Read directly from object storage using
+        the <code>S3</code> table function.
+    </li>
+    <li>
+        <strong>PostgreSQL/MySQL:</strong> Replicate data using the <code>MaterializedPostgreSQL</code> or <code>MySQL</code> engines.
+    </li>
+</ul>
+
+<h2>Conclusion</h2>
+<p>
+    Getting data in is half the battle. Now that we have data, let's
+    learn how to query it efficiently.
+</p>
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/clickhouse/04-modeling" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 4 - Data Modeling</a>
+    <a href="/blog/clickhouse/06-querying" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 6 - Querying Basics &rarr;</a>
+</div>
