@@ -1,0 +1,34 @@
+---
+title: "ELI5: Database Partitioning"
+date: 2023-10-03
+description: "Why sorting receipts into labeled drawers is better than throwing them all in one giant pile."
+tags: ["ELI5", "Partitioning", "Databases"]
+draft: false
+---
+
+Imagine you have a business and you save every single physical receipt. 
+
+### The Big Pile Way (Unpartitioned Table)
+You throw all your receipts from the last 10 years into one giant cardboard box in the attic. 
+At tax time, your accountant asks: **"I need to see the receipts for March 2024."**
+
+To find them, you have to go to the attic, dump out the entire 10-year pile, and inspect every single receipt to see if it was dated March 2024. This takes days, is incredibly dusty, and is a massive waste of time. This is a full table scan.
+
+### The Partitioned Way
+Instead of one box, you buy a filing cabinet. You label the drawers by **Year** (`2022`, `2023`, `2024`, etc.). Inside each drawer, you have 12 folders labeled by **Month** (`January`, `February`, `March`, etc.).
+
+When your accountant asks for March 2024 receipts:
+1. You walk over to the filing cabinet.
+2. You ignore the `2022` and `2023` drawers completely. You pull open the `2024` drawer.
+3. Inside the `2024` drawer, you ignore January, February, April, and the rest. You grab the `March` folder.
+
+You found the exact receipts in 5 seconds. You didn't touch 99% of your data.
+
+This is **Partitioning**. 
+
+In ClickHouse and Delta Lake, partitioning physically splits your table data into separate directories on disk based on a column (like `date` or `country`). When you run a query filtering on that column, the database uses **Partition Pruning** to skip reading the directories that don't match, saving disk reads and executing your query in milliseconds.
+
+> [!WARNING]
+> Don't over-partition! If you partition by a column with too many unique values (like `user_id` or `timestamp` down to the second), you will end up with millions of tiny folders, which will crash your database. Keep your partitions coarse (like by month or country).
+
+Learn how to use partitioning in [ClickHouse: Part 3 - The MergeTree Family](/blog/clickhouse/03-mergetree) and [Databricks Lakehouse: Part 3 - Delta Tables & Schema Enforcement](/blog/databricks/03-delta-tables).

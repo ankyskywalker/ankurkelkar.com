@@ -1,35 +1,139 @@
 ---
+const pathname = new URL(Astro.request.url).pathname;
 
+const isActive = (path: string) => {
+  if (path === "/") {
+    return pathname === "/" || pathname === "";
+  }
+  return pathname.startsWith(path);
+};
 ---
 
 <nav
-  class="w-full sticky top-0 z-50 bg-gradient-to-r from-[#231942]/90 to-[#2a003f]/90 backdrop-blur-sm shadow-lg border-b border-purple-500/20"
+  class="w-full sticky top-0 z-50 bg-[#0b031e]/80 backdrop-blur-md shadow-xl border-b border-white/5"
 >
-  <div class="container mx-auto flex items-center justify-between px-4 py-3">
+  <div class="container mx-auto flex items-center justify-between px-6 py-4">
+    <!-- Logo -->
     <a
       href="/"
-      class="text-2xl font-extrabold tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-pink-300"
+      class="group relative text-2xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400 transition-all duration-300"
     >
       AK
+      <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-pink-500 to-indigo-500 group-hover:w-full transition-all duration-300"></span>
     </a>
-    <ul class="flex space-x-6 font-medium text-lg">
+
+    <!-- Desktop Navigation -->
+    <ul class="hidden md:flex space-x-8 font-semibold text-[16px] tracking-wide items-center">
       <li>
-        <a href="/" class="hover:text-pink-400 transition-colors duration-200"
-          >Home</a
+        <a 
+          href="/" 
+          class={`relative py-1 transition-colors duration-200 ${isActive("/") ? "text-pink-400 font-bold" : "text-gray-300 hover:text-white"}`}
         >
+          Home
+          {isActive("/") && <span class="absolute bottom-0 left-0 w-full h-[2px] bg-pink-400 rounded-full"></span>}
+        </a>
       </li>
       <li>
         <a
           href="/blog"
-          class="hover:text-pink-400 transition-colors duration-200">Blog</a
+          class={`relative py-1 transition-colors duration-200 ${isActive("/blog") ? "text-pink-400 font-bold" : "text-gray-300 hover:text-white"}`}
         >
+          Blog
+          {isActive("/blog") && <span class="absolute bottom-0 left-0 w-full h-[2px] bg-pink-400 rounded-full"></span>}
+        </a>
       </li>
       <li>
         <a
           href="/resume"
-          class="hover:text-pink-400 transition-colors duration-200">Resume</a
+          class={`relative py-1 transition-colors duration-200 ${isActive("/resume") ? "text-pink-400 font-bold" : "text-gray-300 hover:text-white"}`}
         >
+          Resume
+          {isActive("/resume") && <span class="absolute bottom-0 left-0 w-full h-[2px] bg-pink-400 rounded-full"></span>}
+        </a>
+      </li>
+    </ul>
+
+    <!-- Mobile Navigation Toggle -->
+    <button
+      id="mobile-menu-toggle"
+      class="md:hidden text-gray-300 hover:text-white focus:outline-none p-1.5"
+      aria-label="Toggle mobile menu"
+    >
+      <svg
+        id="hamburger-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-6 w-6 transition-transform duration-200"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+      <svg
+        id="close-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-6 w-6 hidden transition-transform duration-200"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Menu Drawer -->
+  <div
+    id="mobile-menu"
+    class="hidden md:hidden border-t border-white/5 bg-[#0b031e] px-6 py-4 space-y-4 shadow-2xl transition-all duration-300"
+  >
+    <ul class="flex flex-col space-y-4 font-bold text-lg">
+      <li>
+        <a 
+          href="/" 
+          class={`block py-2 transition-colors ${isActive("/") ? "text-pink-400" : "text-gray-300 hover:text-white"}`}
+        >
+          Home
+        </a>
+      </li>
+      <li>
+        <a
+          href="/blog"
+          class={`block py-2 transition-colors ${isActive("/blog") ? "text-pink-400" : "text-gray-300 hover:text-white"}`}
+        >
+          Blog
+        </a>
+      </li>
+      <li>
+        <a
+          href="/resume"
+          class={`block py-2 transition-colors ${isActive("/resume") ? "text-pink-400" : "text-gray-300 hover:text-white"}`}
+        >
+          Resume
+        </a>
       </li>
     </ul>
   </div>
 </nav>
+
+<script>
+  const toggleBtn = document.getElementById("mobile-menu-toggle");
+  const mobileMenu = document.getElementById("mobile-menu");
+  const hamburgerIcon = document.getElementById("hamburger-icon");
+  const closeIcon = document.getElementById("close-icon");
+
+  if (toggleBtn && mobileMenu && hamburgerIcon && closeIcon) {
+    toggleBtn.addEventListener("click", () => {
+      const isHidden = mobileMenu.classList.contains("hidden");
+      if (isHidden) {
+        mobileMenu.classList.remove("hidden");
+        hamburgerIcon.classList.add("hidden");
+        closeIcon.classList.remove("hidden");
+      } else {
+        mobileMenu.classList.add("hidden");
+        hamburgerIcon.classList.remove("hidden");
+        closeIcon.classList.add("hidden");
+      }
+    });
+  }
+</script>

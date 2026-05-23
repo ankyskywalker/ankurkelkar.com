@@ -1,0 +1,143 @@
+---
+title: "Part 3: Delta Tables & Schema Enforcement"
+date: 2023-10-13
+description: "Managed vs. External tables, protecting data with Schema Enforcement, and cleaning up with VACUUM."
+tags: ["Databricks", "Delta Lake", "Schema Enforcement", "Optimization"]
+part: "Part 3 of 10"
+cover: "../../../assets/images/databricks/part-3.png"
+draft: false
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Delta tables are the bread and butter of Databricks development. They feel like standard database tables, but because they reside in cloud object storage, you have to manage where they live, how their schemas evolve, and how their physical files are structured. Let's build and secure our tables.
+</p>
+
+## Managed vs. External Tables
+
+When you create a Delta table in Databricks, you must make a critical decision: where should the data physically live?
+
+### 1. Managed Tables
+Managed tables are tables where Databricks handles both the metadata (schema definitions) and the physical files.
+* **Storage Location:** Written to the default workspace storage (dbfs or Unity Catalog managed locations).
+* **Behavior:** If you run `DROP TABLE my_managed_table`, Databricks deletes the metadata *and* deletes all the physical Parquet data files on disk.
+
+```sql
+-- Creating a Managed Table
+CREATE TABLE default.orders_managed (
+    order_id INT,
+    price DOUBLE
+);
+```
+
+### 2. External (Unmanaged) Tables
+External tables are tables where you specify a custom storage path in S3 or ADLS.
+* **Storage Location:** Points to a specific folder path in your cloud bucket.
+* **Behavior:** If you run `DROP TABLE my_external_table`, Databricks only deletes the metadata register. The physical Parquet files remain safely in your S3 bucket.
+
+```sql
+-- Creating an External Table
+CREATE TABLE default.orders_external (
+    order_id INT,
+    price DOUBLE
+)
+LOCATION 's3://my-company-bucket/data/orders';
+```
+
+**Rule of Thumb:** Use Managed tables for clean, internal sandbox data. Use External tables for core business data to prevent accidental deletions from erasing your company's history.
+
+![Pam's "They're the same picture" meme](/images/memes/same-picture.jpg)
+*Data engineers comparing a Managed table vs an External table. "They're the same physical Parquet files, but one will vanish from your cloud bucket if you run DROP TABLE."*
+
+---
+
+## Schema Enforcement vs. Schema Evolution
+
+Data quality issues are the silent killers of pipelines. If an upstream API starts sending a string where a number used to be, it can corrupt downstream tables. Delta Lake handles this with two policies:
+
+### 1. Schema Enforcement (The Bouncer)
+By default, Delta Lake blocks writes that do not match the target table's schema. If your table expects a column `user_id` as an `INT`, and you try to write a string `'abc'`, Delta Lake aborts the transaction and throws a `SchemaReadException`.
+
+> **ELI5:** What is Schema Enforcement vs. Evolution? Think of it like a strict bouncer at a club dress code vs. updating the official VIP guest list manual. See [ELI5: Schema Enforcement vs. Schema Evolution](/blog/eli5/schema-enforcement) for the full analogy.
+
+### 2. Schema Evolution (The Policy Update)
+If you *want* to add a new column (for example, adding `marketing_segment` to your users table), you can explicitly tell Delta Lake to evolve the schema:
+
+```python
+# PySpark code to evolve the schema during write
+df_new.write.format("delta") \
+    .mode("append") \
+    .option("mergeSchema", "true") \
+    .save("/mnt/storage/users")
+```
+
+Or you can use SQL:
+```sql
+ALTER TABLE default.users SET TBLPROPERTIES ('delta.minReaderVersion' = '2', 'delta.minWriterVersion' = '5');
+```
+Read the [Official Delta Lake Schema Validation Docs](https://docs.databricks.com/en/delta/update-schema.html) for detailed settings.
+
+---
+
+## Partitioning Delta Tables
+
+Like ClickHouse, Delta Lake supports partitioning. You choose one or more columns to physically divide your data files on disk:
+
+```sql
+CREATE TABLE default.events (
+    event_id STRING,
+    event_type STRING,
+    event_time TIMESTAMP
+)
+PARTITIONED BY (event_type);
+```
+
+> **ELI5:** What is partitioning? Think of it like sorting receipts into labeled folders by year and month rather than throwing them into one giant cardboard box in the attic. Read [ELI5: Database Partitioning](/blog/eli5/partitioning) for the breakdown.
+
+### The Small File Problem
+If you partition a table by a column with high cardinality (like date down to the second, or unique user IDs), you will write millions of folders, each containing tiny 5 KB files. 
+
+Spark hates small files. Opening and reading 100,000 files of 5 KB is **100x slower** than reading a single 500 MB file due to network and metadata open connection overhead.
+
+---
+
+## Maintenance Operations: OPTIMIZE & VACUUM
+
+To keep your Delta tables healthy and fast, you must run maintenance commands periodically.
+
+### 1. `OPTIMIZE` (Compacting Files)
+`OPTIMIZE` takes small files in your Delta table and merges (compacts) them into large, healthy 1 GB files.
+
+```sql
+OPTIMIZE default.events;
+```
+
+You can even optimize specific partitions:
+```sql
+OPTIMIZE default.events WHERE event_date = '2023-10-13';
+```
+
+### 2. `VACUUM` (Cleaning Up History)
+Because Delta Lake supports time travel, older Parquet files are kept on disk even after you delete rows or update them. Over time, your storage bill will climb.
+
+`VACUUM` deletes physical Parquet files that are no longer referenced in the transaction log and are older than a specific retention threshold (default is 7 days).
+
+```sql
+-- Clean up files older than 7 days
+VACUUM default.events;
+
+-- DANGEROUS: Clean up everything immediately (removes time travel history)
+SET spark.databricks.delta.vacuum.parallelDelete.enabled = true;
+VACUUM default.events RETAIN 0 HOURS;
+```
+
+> [!CAUTION]
+> Running `VACUUM RETAIN 0 HOURS` removes all historical backups. You will lose the ability to perform time travel or undo changes. Never run this in production unless required by compliance (like GDPR right-to-be-forgotten requests).
+
+For syntax options, consult the [Delta Lake CLI Reference](https://docs.databricks.com/en/sql/language-manual/delta-vacuum.html).
+
+Now that we know how to configure and maintain tables, we need to design a pipeline to process raw data. In the next part, we'll design a pipeline using the Medallion Architecture.
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/databricks/02-workspace-compute" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 2 - Workspace & Cluster Setup</a>
+    <a href="/blog/databricks/04-data-modeling" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 4 - Medallion Architecture &rarr;</a>
+</div>

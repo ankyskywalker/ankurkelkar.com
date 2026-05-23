@@ -5,78 +5,139 @@ description: "Mastering SQL in ClickHouse: Aggregations, PREWHERE, and performan
 tags: ["ClickHouse", "SQL", "Querying"]
 part: "Part 6 of 10"
 cover: "../../../assets/images/clickhouse/part-6.png"
+draft: false
 ---
 
 <p class="lead text-xl text-gray-300 mb-8">
-    If you know SQL, you know ClickHouse. It supports standard SQL (ANSI
-    2011), but with some superpowers.
+    ClickHouse is ANSI SQL compliant. If you know how to write standard SELECT statements, you can write ClickHouse queries immediately. But if you want to scan billions of records in under a second, you need to understand ClickHouse's execution extensions. Let's master the art of writing highly optimized analytical queries.
 </p>
 
-<h2>The Secret Weapon: PREWHERE</h2>
-<p>
-    In standard SQL, you use <code>WHERE</code> to filter rows. In ClickHouse,
-    there is a more efficient variation called <code>PREWHERE</code>.
-</p>
-<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-green-500 my-8">
-    <h4 class="text-green-300 font-bold mb-2">How it works</h4>
-    <p>
-        <code>PREWHERE</code> filters data <em>before</em> reading the rest
-        of the columns. It reads only the columns needed for filtering, drops
-        the non-matching rows, and <em>then</em> reads the other columns.
-    </p>
-</div>
-<p>
-    Good news: ClickHouse automatically moves conditions from <code>WHERE</code> to <code>PREWHERE</code> when possible!
-</p>
+## The Secret Weapon: `PREWHERE`
 
-<h2>Aggregations on Steroids</h2>
-<p>ClickHouse is an OLAP database, so it shines at aggregations.</p>
-<pre class="language-sql">
+In standard SQL databases, filtering is straightforward: you use `WHERE`. The engine reads all the columns in your query, evaluates the filter conditions for each row, and discards rows that don’t match.
+
+ClickHouse introduces a major performance optimization called **`PREWHERE`**.
+
+### How `PREWHERE` Works Under the Hood
+Imagine your query is:
+```sql
+SELECT user_id, url, user_agent 
+FROM hits 
+PREWHERE event_type = 'click';
+```
+Here is the step-by-step physical execution:
+1. ClickHouse opens *only* the column file for `event_type` (`event_type.bin`).
+2. It scans the values and creates a bitmask of matching row indices.
+3. It filters out all non-matching row indices.
+4. **Only then** does it open `user_id.bin`, `url.bin`, and `user_agent.bin`, reading *only* the specific blocks corresponding to the matching row indices.
+
+If only 1% of your rows match the filter, `PREWHERE` saves you from reading 99% of the data in the other three columns. This is a massive I/O saver.
+
+```mermaid
+sequenceDiagram
+    participant C as ClickHouse Query Engine
+    participant D as Disk (event_type.bin)
+    participant M as Memory (Filter Mask)
+    participant O as Disk (url.bin, user_id.bin)
+
+    C->>D: Read ONLY event_type column
+    D->>C: Return event_type data
+    C->>M: Create filter mask (matching rows)
+    C->>O: Read ONLY matching blocks
+    O->>C: Return filtered data
+```
+
+### When to write `PREWHERE` explicitly
+By default, the ClickHouse optimizer automatically moves conditions from `WHERE` to `PREWHERE` when it detects it is safe to do so. However, the optimizer can be conservative. It will *not* automatically move your filter if:
+* The column you are filtering by is also in your SELECT clause (though newer versions do this better).
+* Your filter contains complex expressions or subqueries.
+* You disabled the automatic optimization (`SET optimize_move_to_prewhere = 0`).
+
+To guarantee max performance, write `PREWHERE` explicitly for your primary filters:
+```sql
+SELECT customer_name, revenue 
+FROM orders_flat 
+PREWHERE customer_country = 'US' 
+WHERE revenue > 100.0;
+```
+For more information, see the [ClickHouse PREWHERE Documentation](https://clickhouse.com/docs/en/sql-reference/statements/select/prewhere).
+
+---
+
+## Aggregations on Steroids
+
+OLAP databases live and die by aggregation speed. ClickHouse uses highly optimized C++ algorithms to make aggregations run at CPU register speeds.
+
+### `count()` vs. `count(column)`
+* `count()`: This is the fastest way to get row counts. In ClickHouse, `count()` does not scan actual data. If there are no filters, it pulls the count from the metadata. If there are filters, it scans the smallest column (e.g. an integer or LowCardinality column) to get the count.
+* `count(column)`: Compels ClickHouse to scan that specific column file and count only rows that are not null. Never do this unless you explicitly need to exclude null values.
+
+### Approximate Cardinality with HyperLogLog (`uniq`)
+If you want to count unique users on a high-traffic site, running `COUNT(DISTINCT user_id)` (or `uniqExact(user_id)`) requires loading all unique values into a hash table in memory. If you have 50 million unique users, your query will run out of memory.
+
+Instead, use `uniq(user_id)`.
+
+`uniq()` uses the **HyperLogLog** algorithm. It provides an extremely accurate approximation (typically within 1% error) while using a tiny, fixed amount of memory. It runs up to **20x faster** than `uniqExact()`.
+
+For exact counts, use `uniqExact()`, but reserve it for smaller datasets or reports where approximation is legally or financially unacceptable.
+
+![Disaster Girl running select count distinct](/images/memes/disaster-girl.jpg)
+*POV: Watching the ClickHouse server run out of memory because you ran uniqExact() on a high-cardinality ID column across a 10-billion row table instead of using uniq().*
+
+### Calculating Latency Percentiles (`quantile`)
+If you are analyzing system performance or API latencies, calculating the average latency is useless. A few extremely slow queries can hide behind a good average. You want percentiles (e.g., p95 or p99).
+
+ClickHouse has a specialized aggregate function for this:
+
+```sql
 SELECT
-    toStartOfHour(event_time) AS hour,
-    count() AS total_events,
-    uniq(user_id) AS unique_users,
-    avg(duration) AS avg_duration
-FROM events
-GROUP BY hour
-ORDER BY hour DESC
-LIMIT 10;
-</pre>
+    product_category,
+    avg(price) AS avg_price,
+    quantile(0.50)(price) AS p50_price,
+    quantile(0.95)(price) AS p95_price,
+    quantile(0.99)(price) AS p99_price
+FROM orders_flat
+GROUP BY product_category;
+```
 
-<ul class="list-disc ml-4 space-y-2 text-gray-300">
-    <li>
-        <strong>count():</strong> Faster than <code>count(*)</code>.
-    </li>
-    <li>
-        <strong>uniq():</strong> Approximate unique count (HyperLogLog).
-        Extremely fast and memory efficient.
-    </li>
-    <li>
-        <strong>uniqExact():</strong> Exact unique count. Slower and uses
-        more memory.
-    </li>
-</ul>
+You can even calculate multiple percentiles in a single function call using `quantiles`:
 
-<h2>Date and Time Functions</h2>
-<p>
-    ClickHouse has a rich library of functions for working with time
-    series data.
-</p>
-<ul class="list-disc ml-4 space-y-2 text-gray-300">
-    <li>
-        <code>toStartOfHour</code>, <code>toStartOfDay</code>, <code>toStartOfMonth</code>
-    </li>
-    <li><code>formatDateTime</code></li>
-    <li><code>dateDiff</code></li>
-</ul>
+```sql
+SELECT quantiles(0.5, 0.9, 0.99)(price) FROM orders_flat;
+```
 
-<h2>Conclusion</h2>
-<p>
-    Writing queries in ClickHouse feels familiar, but the performance is
-    unlike anything else. By understanding how ClickHouse executes
-    queries (like <code>PREWHERE</code>), you can write even faster SQL.
-    Next, we'll look at some advanced features like arrays and maps.
-</p>
+---
+
+## Advanced Time Series Aggregation
+
+ClickHouse has an extensive library of functions for slicing and dicing time. The most important functions for real-time dashboards are the `toStartOf*` family.
+
+Instead of writing complex SQL string manipulation to group by 5-minute intervals:
+
+```sql
+SELECT
+    -- Groups timestamps into clean 5-minute buckets
+    toStartOfInterval(timestamp, INTERVAL 5 MINUTE) AS time_bucket,
+    count() AS total_transactions,
+    sum(revenue) AS total_revenue
+FROM orders_flat
+WHERE timestamp >= now() - INTERVAL 24 HOUR
+GROUP BY time_bucket
+ORDER BY time_bucket ASC;
+```
+
+Common date rounding functions include:
+* `toStartOfHour(timestamp)`
+* `toStartOfDay(timestamp)`
+* `toStartOfMonth(timestamp)`
+
+For timezone manipulation, you can pass the timezone as the second argument:
+```sql
+SELECT toStartOfDay(timestamp, 'America/New_York') FROM orders_flat;
+```
+For the complete catalog of date/time functions, consult the [ClickHouse Date and Time Functions Reference](https://clickhouse.com/docs/en/sql-reference/functions/date-time-functions).
+
+Now that we have querying basics down, let's explore ClickHouse's support for complex data types like Arrays, Maps, and Window Functions in Part 7.
 
 <div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
     <a href="/blog/clickhouse/05-ingestion" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 5 - Ingestion</a>

@@ -1,0 +1,25 @@
+---
+title: "ELI5: The Lakehouse Architecture"
+date: 2023-10-01
+description: "Why a hybrid between a high-end restaurant and a chaotic warehouse store is the future of data."
+tags: ["ELI5", "Lakehouse", "Databricks"]
+draft: false
+---
+
+To understand a Lakehouse, we first have to understand the two worlds it combined: the **Data Warehouse** and the **Data Lake**.
+
+### 1. The Data Warehouse (The Fancy Restaurant)
+A Data Warehouse is like a high-end restaurant. It's clean, highly structured, and has a set menu. If you want to eat, you must sit at a table and order from the menu (SQL queries). It's very fast and reliable, but it's extremely expensive, and if you want to bring in raw ingredients (like unstructured text, images, or audio), the chef will throw you out. Databases like Snowflake or Redshift fit here.
+
+### 2. The Data Lake (The Messy Costco)
+A Data Lake is like a massive, chaotic warehouse store. Everything is cheap, stored in bulk, and thrown into cardboard boxes on high shelves. You can store anything here—raw files, JSON logs, videos, audio. It's incredibly cheap to dump things here, but finding anything is a nightmare. There are no rules, no organization, and no bouncer. You might get half-corrupted boxes, and searching takes forever. Storage like AWS S3 or Azure ADLS fit here.
+
+### 3. The Lakehouse (The Best of Both Worlds)
+A **Lakehouse** is like putting a high-end sushi chef directly inside the cheap Costco warehouse. 
+
+The data remains stored in cheap, open-format files in your Data Lake (Costco storage prices). But the Lakehouse adds a software layer on top that acts like the chef. It enforces rules, organizes the files into neat tables, ensures two people don't overwrite the same file at the same time, and lets you query everything using standard SQL.
+
+It gives you the cheap storage and flexibility of a Data Lake combined with the reliability, structure, and speed of a Data Warehouse.
+
+Read the full architectural breakdown in [Databricks Lakehouse: Part 1 - Architecture & Delta Lake](/blog/databricks/01-intro).
+For more information, see the [Databricks Lakehouse Documentation](https://www.databricks.com/glossary/data-lakehouse).

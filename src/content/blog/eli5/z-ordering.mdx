@@ -1,0 +1,31 @@
+---
+title: "ELI5: Z-Ordering"
+date: 2023-10-09
+description: "How to arrange books in a library so you can find them by author and publication year without reading every shelf."
+tags: ["ELI5", "Z-Ordering", "Delta Lake", "Performance"]
+draft: false
+---
+
+Imagine you have a library with 1,000,000 books. 
+
+### Flat Sorting (Linear Order)
+If you sort all the books by **Author** alphabetically, finding books by "Stephen King" is incredibly easy. They are all right next to each other on Shelf 42.
+
+But what if you want to find all books written in **1994** by **any author**? 
+Because the books are sorted only by Author, books from 1994 are scattered randomly across all 1,000 shelves. You have to walk down every single aisle, inspect every single book, and check its publication date. This is a full table scan.
+
+### Z-Ordering (Multidimensional Sorting)
+**Z-Ordering** is a way to sort books by *multiple* columns at the same time (e.g., both Author AND Publication Year) without prioritizing one over the other.
+
+Imagine mapping your library as a grid where the X-axis is the Author's name (A to Z) and the Y-axis is the Publication Year (1900 to 2026). 
+Instead of laying them out in a straight line, Z-Ordering lays the books out in a space-filling curve (a Z-shaped pattern) across the grid.
+
+What this does is create **clusters** of books that share *both* properties. 
+* Books by authors starting with "K" written around "1994" will be physically grouped together in the same small corner of the library.
+* If you query for "Author = King AND Year = 1994", the librarian can bypass 99% of the shelves and walk straight to that specific corner.
+* Even if you only query for "Year = 1994" (without specifying the author), because the books are clustered, the librarian only has to check a few specific shelves, not the whole library.
+
+In databases like [Delta Lake Z-Ordering](https://docs.greatexpectations.io/docs/) and ClickHouse, Z-Ordering reorganizes the physical files on disk so that rows with similar values in the Z-ordered columns are written to the same files. This allows the query engine to use file-skipping to ignore files that don't match your filters, making your queries run in milliseconds.
+
+Read the tuning guide in [Databricks Lakehouse: Part 9 - Tuning & Photon Engine](/blog/databricks/09-performance).
+For official guidelines, see the [Databricks Z-Order Optimization Guide](https://docs.databricks.com/en/delta/data-skipping.html#z-order-clustering).

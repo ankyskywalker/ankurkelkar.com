@@ -1,0 +1,155 @@
+---
+title: "Part 4: The Medallion Architecture"
+date: 2023-10-14
+description: "Building production-grade data pipelines using Bronze, Silver, and Gold table layers."
+tags: ["Databricks", "Medallion Architecture", "Data Pipelines", "Data Modeling"]
+part: "Part 4 of 10"
+cover: "../../../assets/images/databricks/part-4.png"
+draft: false
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Building data pipelines is a lot like cooking: if you throw raw, dirty vegetables straight from the farm into a blender, your soup will taste like dirt. You need to wash them, peel them, chop them, and then simmer. In the Lakehouse, we clean our data systematically using the Medallion Architecture.
+</p>
+
+## What is the Medallion Architecture?
+
+The [Medallion Architecture](https://www.databricks.com/glossary/medallion-architecture) is a data design pattern that organizes tables into three logical layers: **Bronze (Raw)**, **Silver (Cleaned/Enriched)**, and **Gold (Aggregated/Business-Ready)**. 
+
+Each layer refines the data, increasing its quality, structure, and reliability.
+
+```
+[ Raw Event Sources ] 
+         │
+         ▼
+ ┌───────────────┐
+ │ Bronze (Raw)  │  <-- Append-only, dirty files, full history preserved
+ └───────┬───────┘
+         │  (Washing, deduplication, schema validation, parsing)
+         ▼
+ ┌───────────────┐
+ │ Silver (Clean)│  <-- Cleaned schemas, enriched fields, lookup joins
+ └───────┬───────┘
+         │  (Aggregation, business logic calculations)
+         ▼
+ ┌───────────────┐
+ │ Gold (Metrics)│  <-- Pre-aggregated metrics, dashboard-ready
+ └───────────────┘
+```
+
+> **ELI5:** What is the Medallion Architecture? Think of it like running a water purification plant: Bronze is the raw muddy river water, Silver is filtered clean tap water, and Gold is premium bottled mineral water. See [ELI5: The Medallion Architecture](/blog/eli5/medallion-architecture) for the full breakdown.
+
+---
+
+## The Three Layers in Detail
+
+### 1. The Bronze Layer (The Raw Holding Tank)
+This is your raw staging ground.
+* **Write Pattern:** Append-only. You dump data exactly as it comes from the source API, message queue, or database log.
+* **Structure:** Raw JSON strings, CSVs, or dump files.
+* **Rule:** **Never modify data in the Bronze layer.** No transformations, no cleansing. If your downstream pipeline breaks, having the unpolluted Bronze history allows you to replay the ETL from scratch.
+
+### 2. The Silver Layer (The Clean Playground)
+This is the main playground for analysts and data scientists.
+* **Action:** Deduplication, null value handling, date parsing, and schema enforcement. 
+* **Structure:** Clean, tabular tables. You join different Bronze sources (e.g. joining orders with customer details) to create enriched entities.
+* **Write Pattern:** Typically updates or appends using `MERGE INTO` (UPSERT) commands to ensure no duplicates.
+
+### 3. The Gold Layer (The Executive Boardroom)
+This layer is optimized for dashboards, business intelligence (BI) tools, and reporting.
+* **Action:** Heavy aggregations, rollups, and business KPIs.
+* **Structure:** Highly denormalized, clean tables or star schemas.
+* **Rule:** Keep queries against Gold simple. All the hard computing work (joins, regex parses, type conversions) should have been finished in Silver.
+
+![Boromir Bronze tables meme](/images/memes/boromir.jpg)
+*One does not simply run production analytics on Bronze tables.*
+
+---
+
+## Code Implementation: E-Commerce Pipeline
+
+Let’s implement a full Medallion pipeline in PySpark to process raw customer orders.
+
+### Step 1: Bronze Layer (Insert Raw Data)
+We read raw JSON files and write them directly to a Bronze Delta table as-is.
+```python
+from pyspark.sql.functions import current_timestamp
+
+# Read raw files
+df_raw = spark.read.format("json").load("s3://my-bucket/raw/orders/")
+
+# Add ingestion metadata and write to Bronze
+df_raw.withColumn("ingested_at", current_timestamp()) \
+    .write.format("delta") \
+    .mode("append") \
+    .saveAsTable("orders_bronze")
+```
+
+### Step 2: Silver Layer (Clean, Validate, Deduplicate)
+We read from `orders_bronze`, validate schemas, parse strings, and merge into `orders_silver` to deduplicate order IDs.
+```python
+from pyspark.sql.functions import col, to_timestamp
+
+# 1. Read from Bronze
+df_bronze = spark.read.table("orders_bronze")
+
+# 2. Clean and transform
+df_clean = df_bronze.select(
+    col("order_id").cast("int"),
+    col("customer_id").cast("int"),
+    to_timestamp(col("order_date"), "yyyy-MM-dd HH:mm:ss").alias("order_time"),
+    col("product_sku").alias("sku"),
+    col("quantity").cast("int"),
+    col("unit_price").cast("double")
+).filter(col("order_id").isNotNull())
+
+# 3. Create the Silver table if it doesn't exist
+df_clean.write.format("delta").mode("ignore").saveAsTable("orders_silver")
+
+# 4. Upsert (Merge) into Silver to prevent duplicate orders
+from delta.tables import DeltaTable
+
+silver_table = DeltaTable.forName(spark, "orders_silver")
+silver_table.alias("target").merge(
+    df_clean.alias("source"),
+    "target.order_id = source.order_id"
+).whenMatchedUpdateAll() \
+ .whenNotMatchedInsertAll() \
+ .execute()
+```
+
+### Step 3: Gold Layer (Pre-aggregate for Dashboards)
+We aggregate the Silver data by day and product category to build our sales dashboard table.
+```python
+from pyspark.sql.functions import date_trunc, sum as spark_sum
+
+# 1. Read clean data from Silver
+df_silver = spark.read.table("orders_silver")
+
+# 2. Calculate daily categories revenue
+df_gold = df_silver.withColumn("order_day", date_trunc("day", col("order_time"))) \
+    .groupBy("order_day", "sku") \
+    .agg(
+        spark_sum(col("quantity") * col("unit_price")).alias("total_revenue"),
+        spark_sum("quantity").alias("units_sold")
+    )
+
+# 3. Overwrite Gold table for clean metrics reporting
+df_gold.write.format("delta") \
+    .mode("overwrite") \
+    .saveAsTable("daily_revenue_gold")
+```
+
+Now we have a clean pipeline where:
+* Raw data is preserved.
+* Duplicate order IDs are resolved in Silver.
+* Dashboard queries run instantly on Gold in milliseconds because all heavy arithmetic is pre-computed.
+
+For design variations, check the [Databricks Medallion Architecture Best Practices Guide](https://www.databricks.com/glossary/medallion-architecture).
+
+Next, we'll look at how to ingest files automatically as they arrive in cloud storage in Part 5.
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/databricks/03-delta-tables" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 3 - Delta Tables & Schema Enforcement</a>
+    <a href="/blog/databricks/05-ingestion" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 5 - Ingestion with Auto Loader &rarr;</a>
+</div>

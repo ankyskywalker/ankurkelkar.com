@@ -1,0 +1,115 @@
+---
+title: "Part 1: The Lakehouse Architecture & Delta Lake"
+date: 2023-10-11
+description: "Why gluing a transaction log to a bunch of Parquet files solved the biggest headache in data engineering."
+tags: ["Databricks", "Lakehouse", "Delta Lake", "Architecture"]
+part: "Part 1 of 10"
+cover: "../../../assets/images/databricks/part-1.png"
+draft: false
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Welcome to the Databricks Lakehouse series. If you've spent any time in data engineering, you know the history: we built Data Warehouses, they got too expensive, so we built Data Lakes. Then we realized Data Lakes were chaotic swamps of corrupted files, so we invented the Lakehouse. Let's look at how Delta Lake makes this possible.
+</p>
+
+## The Great Data Divide: Warehouses vs. Lakes
+
+For decades, data architecture was split into two hostile camps:
+
+1. **The Data Warehouse (OLAP DBs):** High performance, full SQL support, and ACID transactions. But it was incredibly expensive to store petabytes of raw data, and it only supported structured data.
+2. **The Data Lake (S3 / ADLS / GCS):** Extremely cheap, infinitely scalable storage for any file format (CSV, Parquet, JSON, images). But it had no transactions, no structure, and no data quality. One failed write halfway through a batch could corrupt your entire dataset.
+
+Data engineers spent half their lives writing complex recovery scripts to clean up half-written files after an ETL cluster crashed.
+
+![Distracted Boyfriend Lakehouse](/images/memes/distracted-boyfriend.jpg)
+*Data engineers looking at the unified Lakehouse architecture while their legacy Hadoop and costly data warehouse setups look on in jealousy.*
+
+> **ELI5:** What is the Lakehouse? Imagine putting a Michelin-star chef directly inside a cheap Costco warehouse to organize and cook raw bulk foods on the spot. See [ELI5: The Lakehouse Architecture](/blog/eli5/lakehouse) for the full breakdown.
+
+---
+
+## What is Delta Lake?
+
+[Delta Lake](https://delta.io/) is the open-source storage layer that brings reliability to data lakes. Under the hood, Delta Lake is surprisingly simple: it is just **standard Apache Parquet files** bundled with a **JSON-based transaction log**.
+
+```text
+my_table/
+├── _delta_log/
+│   ├── 00000000000000000000.json  <-- Commit 0 (Initial write)
+│   ├── 00000000000000000001.json  <-- Commit 1 (Append rows)
+│   └── 00000000000000000002.json  <-- Commit 2 (Delete rows)
+├── part-00000-a1b2c3d4.snappy.parquet
+└── part-00001-e5f6g7h8.snappy.parquet
+```
+
+Every time you write, update, or delete data in a Delta table, Delta Lake:
+1. Writes the data as standard `.parquet` files.
+2. Appends a new commit file (e.g. `000001.json`) to the `_delta_log/` directory. This commit file lists exactly which Parquet files were added and which were removed.
+
+When a query engine (like Spark) reads the table, it reads the transaction log first to find the list of *currently active* Parquet files. It ignores any files that have been marked as deleted, even if they are still sitting on the disk.
+
+> **ELI5:** Why is Delta Lake better than raw files? Think of the difference between editing a text file on a shared network drive with no history vs. editing a Google Doc with full version history and track changes. Read [ELI5: Delta Lake](/blog/eli5/delta-lake) for the analogy.
+
+---
+
+## ACID Transactions on Object Storage
+
+Because Delta Lake relies on the transaction log, it guarantees **ACID transactions**. 
+
+> **ELI5:** What are ACID transactions? Imagine a bank transfer where money is deducted from your account and added to Bob's. It must be all-or-nothing—if the system crashes halfway, the money can't just vanish. Read [ELI5: ACID Transactions](/blog/eli5/acid) for the breakdown.
+
+If a Spark job writing 10 GB of data crashes 90% of the way through, the Parquet files are written to S3, but they are **never committed** to the `_delta_log`. The next query simply skips them. There is no partial-write corruption.
+
+---
+
+## Time Travel: Querying Historical Data
+
+Because Delta Lake keeps historical files on disk and tracks changes in the log, you can query older versions of your table. This is called **Time Travel**.
+
+Let’s query a Delta table in Python (PySpark):
+
+```python
+# Read the current version of the table
+df = spark.read.format("delta").load("/mnt/storage/users")
+
+# Read version 5 of the table
+df_v5 = spark.read.format("delta").option("versionAsOf", 5).load("/mnt/storage/users")
+
+# Read the table as it looked on Christmas 2023
+df_christmas = spark.read.format("delta") \
+    .option("timestampAsOf", "2023-12-25 12:00:00") \
+    .load("/mnt/storage/users")
+```
+
+Or you can use Spark SQL:
+
+```sql
+SELECT * FROM users TIMESTAMP AS OF "2023-12-25 12:00:00";
+```
+
+### Inspecting Table History
+You can view the full log of changes to see who ran what and when:
+
+```sql
+DESCRIBE HISTORY users;
+```
+
+Output:
+| version | timestamp | userId | userName | operation | operationParameters |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **2** | 2023-10-11 10:15:00 | 1002 | Alice | DELETE | `{"predicate": "[\"age < 18\"]"}` |
+| **1** | 2023-10-11 09:30:00 | 1001 | Bob | WRITE | `{"mode": "Append"}` |
+| **0** | 2023-10-11 08:00:00 | 1001 | Bob | CREATE TABLE | `{"mode": "Overwrite"}` |
+
+For a complete breakdown of the Delta protocol, check out the [Official Delta Lake Documentation](https://docs.delta.io/latest/index.html).
+
+---
+
+## What's Next?
+
+Now that you understand the Lakehouse storage foundation, we need compute to query it. In the next part, we'll configure our Databricks workspaces and clusters, and look at how to choose node types without draining your company's bank account.
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <span></span>
+    <a href="/blog/databricks/02-workspace-compute" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 2 - Workspace & Cluster Setup &rarr;</a>
+</div>

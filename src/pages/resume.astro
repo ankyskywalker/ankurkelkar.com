@@ -1,153 +1,268 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import resume from "../content/resume.json";
+
 const pageTitle = "Ankur Kelkar – Resume";
+
+// Static mapping to resolve Tailwind v4 dynamic class compilation bug
+const colorMap: Record<string, { border: string; text: string; bg: string; textDark: string }> = {
+  pink: { border: "border-pink-500", text: "text-pink-400", bg: "bg-pink-500/10", textDark: "text-pink-500" },
+  indigo: { border: "border-indigo-500", text: "text-indigo-400", bg: "bg-indigo-500/10", textDark: "text-indigo-600" },
+  green: { border: "border-emerald-500", text: "text-emerald-400", bg: "bg-emerald-500/10", textDark: "text-emerald-600" },
+  cyan: { border: "border-cyan-500", text: "text-cyan-400", bg: "bg-cyan-500/10", textDark: "text-cyan-600" },
+  yellow: { border: "border-yellow-500", text: "text-yellow-400", bg: "bg-yellow-500/10", textDark: "text-yellow-600" },
+  orange: { border: "border-orange-500", text: "text-orange-400", bg: "bg-orange-500/10", textDark: "text-orange-600" },
+  blue: { border: "border-blue-500", text: "text-blue-400", bg: "bg-blue-500/10", textDark: "text-blue-600" },
+  red: { border: "border-red-500", text: "text-red-400", bg: "bg-red-500/10", textDark: "text-red-600" },
+  white: { border: "border-slate-500", text: "text-slate-300", bg: "bg-slate-500/10", textDark: "text-slate-600" }
+};
+
+const getColorClasses = (colorName: string) => {
+  return colorMap[colorName] || colorMap.white;
+};
 ---
+
 <BaseLayout title={pageTitle}>
-  <div class="container mx-auto px-4 py-12">
-    <div class="prose prose-invert lg:prose-xl mx-auto mb-16">
-      <!-- Header Card -->
-      <div class="bg-gradient-to-r from-slate-800/80 to-purple-900/80 backdrop-blur-md rounded-3xl p-8 mb-12 shadow-2xl border border-purple-500/20">
-        <header class="text-center space-y-4">
-          <h1 class="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 via-pink-300 to-yellow-100 mb-2">
+  <div class="container mx-auto px-6 py-12 lg:py-20 max-w-7xl">
+    
+    <!-- Action Header (Print button) -->
+    <div class="flex justify-between items-center mb-8 no-print">
+      <h1 class="text-3xl font-black text-white">Executive Profile</h1>
+      <button 
+        onclick="window.print()" 
+        class="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-pink-600 to-indigo-600 hover:opacity-90 active:scale-95 text-white font-bold rounded-xl transition shadow-xl"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
+        Save to PDF / Print
+      </button>
+    </div>
+
+    <!-- Resume Container -->
+    <div class="print-resume bg-[#090315]/30 backdrop-blur-md rounded-3xl border border-white/5 p-6 lg:p-12 shadow-2xl space-y-12">
+      
+      <!-- Top Basics Header Card -->
+      <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 pb-8 border-b border-white/5">
+        <div class="space-y-2">
+          <h2 class="text-4xl lg:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-indigo-400 to-yellow-200 uppercase">
             {resume.basics.name}
-          </h1>
-          <p class="text-xl text-gray-300 font-semibold">{resume.basics.label} · {resume.basics.location}</p>
-          
-          <div class="flex flex-wrap justify-center gap-4 mt-6">
-            <a href={`mailto:${resume.basics.email}`} class="px-4 py-2 bg-indigo-600/30 rounded-full text-indigo-300 hover:bg-indigo-600/50 transition">
-              {resume.basics.email}
-            </a>
-            <a href={`tel:${resume.basics.phone}`} class="px-4 py-2 bg-pink-600/30 rounded-full text-pink-300 hover:bg-pink-600/50 transition">
-              {resume.basics.phone}
-            </a>
-          </div>
-          
-          <div class="flex justify-center space-x-8 mt-4">
+          </h2>
+          <p class="text-xl text-indigo-300 font-semibold tracking-wide">{resume.basics.label} · {resume.basics.location}</p>
+        </div>
+        
+        <div class="flex flex-col gap-2.5 text-sm text-gray-400 md:text-right font-medium">
+          <a href={`mailto:${resume.basics.email}`} class="hover:text-pink-400 transition flex items-center md:justify-end gap-2">
+            {resume.basics.email}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+          </a>
+          <a href={`tel:${resume.basics.phone}`} class="hover:text-pink-400 transition flex items-center md:justify-end gap-2">
+            {resume.basics.phone}
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+          </a>
+          <div class="flex flex-wrap md:justify-end gap-4 mt-2">
             {resume.basics.profiles.map((profile) => (
-              <a href={profile.url} class="text-blue-400 hover:text-blue-300 font-semibold">{profile.network}</a>
+              <a href={profile.url} target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-white/5 border border-white/5 rounded-full hover:bg-white/10 transition text-xs font-bold text-gray-300">
+                {profile.network}
+              </a>
             ))}
           </div>
-        </header>
-      </div>
+        </div>
+      </header>
 
-      <!-- Profile Section -->
-      <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 mb-8 shadow-xl border border-gray-700/30">
-        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-300 mb-4">
-          Profile
-        </h2>
-        <p class="text-gray-200 leading-relaxed text-lg">
-          {resume.basics.summary}
-        </p>
-      </section>
+      <!-- Main Layout Grid (2 Columns) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+        
+        <!-- Left Column: Summary, Skills, Education, Certifications -->
+        <div class="lg:col-span-1 space-y-10">
+          
+          <!-- Summary Teaser -->
+          <section class="space-y-4">
+            <h3 class="text-xs font-black uppercase tracking-widest text-indigo-400">Professional Summary</h3>
+            <p class="text-gray-300 leading-relaxed text-sm">
+              {resume.basics.summary}
+            </p>
+          </section>
 
-      <!-- Summary Section -->
-      <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 mb-8 shadow-xl border border-gray-700/30">
-        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-300 mb-4">
-          Summary
-        </h2>
-        <div class="space-y-8">
-          <div class="border-l-4 border-pink-500 pl-6">
-            <ul class="space-y-2 text-gray-200">
+          <!-- Core Highlights -->
+          <section class="space-y-4">
+            <h3 class="text-xs font-black uppercase tracking-widest text-indigo-400">Core Highlights</h3>
+            <ul class="space-y-2.5 text-sm text-gray-300">
               {resume.summary_list.map((item) => (
-                <li>• {item}</li>
+                <li class="flex items-start gap-2.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-pink-500 mt-1.5 flex-shrink-0"></span>
+                  <span>{item}</span>
+                </li>
               ))}
             </ul>
-          </div>
-        </div>
-      </section>
+          </section>
 
-      <!-- Employment History -->
-      <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 mb-8 shadow-xl border border-gray-700/30">
-        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-pink-400 mb-6">
-          Employment History
-        </h2>
-        
-        <div class="space-y-8">
-          {resume.work.map((job) => (
-            <div class={`border-l-4 border-${job.color}-500 pl-6`}>
-              <h3 class={`text-xl font-bold text-${job.color}-300`}>{job.position} · {job.company} ({job.location})</h3>
-              <p class="text-gray-400 font-medium mb-3">{job.startDate} – {job.endDate}</p>
-              <ul class="space-y-2 text-gray-200">
-                {job.highlights.map((highlight) => (
-                  <li>• {highlight}</li>
-                ))}
-              </ul>
+          <!-- Grouped Skills List -->
+          <section class="space-y-5">
+            <h3 class="text-xs font-black uppercase tracking-widest text-indigo-400">Skills & Tech Stack</h3>
+            <div class="space-y-5">
+              {resume.skills.map((skill) => {
+                const c = getColorClasses(skill.color);
+                return (
+                  <div class={`p-4 rounded-2xl bg-white/5 border border-white/5 ${c.border.replace('border-', 'hover:border-')} transition`}>
+                    <h4 class={`text-sm font-bold flex items-center gap-2 mb-3 ${c.text}`}>
+                      <span>{
+                        skill.name === "Software and Services" ? "💻" : 
+                        skill.name === "Data Skills" ? "📈" : 
+                        skill.name === "Technical Skills" ? "🛠️" : 
+                        skill.name === "Business Domains" ? "🏢" : 
+                        skill.name === "Interests" ? "🌟" : "🤝"
+                      }</span>
+                      <span>{skill.name}</span>
+                    </h4>
+                    <div class="flex flex-wrap gap-1.5">
+                      {skill.keywords.map((keyword) => (
+                        <span class="px-2.5 py-1 bg-white/5 rounded-lg text-xs text-gray-300 leading-normal" set:html={keyword.replace(/(\w+:)/g, '<em class="font-bold text-white not-italic">$1</em>')}></span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      <!-- Education & Interests -->
-      <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
-        <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-700/30">
-          <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 mb-4">
-            Education
-          </h2>
-          <div class="space-y-2 border-l-4 border-pink-500 pl-6 text-gray-200">
-            {resume.education.map((edu) => (
-              <p><span class="font-bold">{edu.area}</span>, {edu.institution} · {edu.startDate}–{edu.endDate} · {edu.score}</p>
-            ))}
-          </div>
-        </section>
-      </div>
+          <!-- Education Section -->
+          <section class="space-y-4">
+            <h3 class="text-xs font-black uppercase tracking-widest text-indigo-400">Education</h3>
+            <div class="space-y-4">
+              {resume.education.map((edu) => (
+                <div class="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-1">
+                  <h4 class="text-sm font-bold text-white">{edu.area} ({edu.studyType})</h4>
+                  <p class="text-xs text-gray-400">{edu.institution}</p>
+                  <div class="flex justify-between text-[11px] text-gray-500 font-bold pt-1">
+                    <span>{edu.startDate} – {edu.endDate}</span>
+                    <span class="text-pink-400">{edu.score}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
 
-      <!-- Courses & Certifications -->
-      <div class="grid grid-cols-1 md:grid-cols-1 gap-6 mb-8">
-        <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-700/30">
-          <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-cyan-400 mb-4">
-            Courses & Certifications
-          </h2>
-          <div class="space-y-2 border-l-4 border-blue-500 pl-6 text-gray-200">
-            {resume.certifications.map((cert) => (
-              <p>{cert.name}, {cert.issuer}</p>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      <!-- Skills Section -->
-      <section class="bg-slate-800/60 backdrop-blur-md rounded-2xl p-8 mb-8 shadow-xl border border-gray-700/30">
-        <h2 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-400 mb-6">
-          Skills
-        </h2>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 mb-8">
-          {resume.skills.slice(0, 3).map((skill) => (
+          <!-- Certifications Section -->
+          <section class="space-y-4">
+            <h3 class="text-xs font-black uppercase tracking-widest text-indigo-400">Certifications</h3>
             <div class="space-y-3">
-              <span class={`font-bold text-${skill.color}-500 text-xl`}>
-                {skill.name === "Software and Services" ? "💻 " : skill.name === "Data Skills" ? "📈 " : "🛠️ "}{skill.name} :
-              </span> 
-              <div class={`flex flex-wrap gap-3 border-l-3 border-${skill.color}-500 pl-4 mt-4`}>
-                <ul class="space-y-2 text-gray-200">
-                  {skill.keywords.map((keyword) => (
-                    <li class="text-gray-200">• <span set:html={keyword.replace(/(\w+:)/g, '<em class="font-bold">$1</em>')}></span></li>
-                  ))}
-                </ul>
-              </div>
+              {resume.certifications.map((cert) => (
+                <div class="p-3.5 rounded-2xl bg-white/5 border border-white/5 flex justify-between items-center gap-4">
+                  <span class="text-sm font-bold text-white">{cert.name}</span>
+                  <span class="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20 flex-shrink-0">{cert.issuer}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          </section>
+
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-8 mb-8">
-          {resume.skills.slice(3).map((skill) => (
-            <div class="space-y-3">
-              <span class={`font-bold text-${skill.color}-500 text-xl`}>
-                {skill.name === "Business Domains" ? "🏢 " : skill.name === "Interests" ? "🌟 " : "🤝 "}{skill.name}
-                {skill.name !== "Interests" && skill.name !== "Business Domains" ? " :" : ""}
-              </span> 
-              <div class={`flex flex-wrap gap-3 border-l-3 border-${skill.color}-500 pl-4 mt-4`}>
-                <ul class="space-y-2 text-gray-200">
-                  {skill.keywords.map((keyword) => (
-                    <li class="text-gray-200">• <span set:html={keyword.replace(/(\w+:)/g, '<em class="font-bold">$1</em>')}></span></li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          ))}
+
+        <!-- Right Column: Timeline Employment History -->
+        <div class="lg:col-span-2 space-y-6">
+          <h3 class="text-xs font-black uppercase tracking-widest text-indigo-400 mb-6">Employment History</h3>
+          
+          <div class="relative border-l border-white/10 pl-6 lg:pl-8 ml-3 space-y-10 py-2">
+            {resume.work.map((job) => {
+              const c = getColorClasses(job.color);
+              return (
+                <div class="relative group page-break-avoid">
+                  <!-- Timeline Bullet Point node -->
+                  <span class={`absolute -left-[31px] lg:-left-[39px] top-1.5 w-4 h-4 rounded-full border-2 border-[#0b031e] bg-slate-900 shadow-md transition-colors duration-300 group-hover:scale-125 ${c.border.replace('border-', 'group-hover:bg-')}`}></span>
+                  
+                  <div class="space-y-3">
+                    <header class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1.5">
+                      <div>
+                        <h4 class={`text-xl font-bold ${c.text}`}>{job.position}</h4>
+                        <p class="text-sm text-white font-medium">{job.company} · <span class="text-gray-400 text-xs">{job.location}</span></p>
+                      </div>
+                      <span class="text-xs text-indigo-300 font-bold bg-indigo-500/10 border border-indigo-500/20 px-3 py-1 rounded-xl w-fit">
+                        {job.startDate} – {job.endDate}
+                      </span>
+                    </header>
+                    
+                    <ul class="space-y-2 text-sm text-gray-300 leading-relaxed">
+                      {job.highlights.map((highlight) => (
+                        <li class="flex items-start gap-2.5">
+                          <span class="w-1.5 h-1.5 rounded-full bg-indigo-500/35 mt-2 flex-shrink-0"></span>
+                          <span>{highlight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </section>
+
+      </div>
 
     </div>
   </div>
 </BaseLayout>
+
+<style>
+  /* High fidelity print page break overrides */
+  .page-break-avoid {
+    page-break-inside: avoid;
+  }
+
+  @media print {
+    /* Hide backgrounds, grids, borders, print headers */
+    body {
+      background: white !important;
+      color: black !important;
+      font-size: 11pt;
+    }
+    
+    .print-resume {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    
+    /* Modify colors for high contrast print output */
+    h2, h3, h4, em, strong {
+      color: black !important;
+    }
+    
+    p, li, span, a {
+      color: #333333 !important;
+    }
+    
+    /* Skills and timeline bullet color styling for black and white */
+    .bg-white\/5 {
+      background: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+    }
+    
+    .border-white\/10, .border-white\/5 {
+      border-color: #cbd5e1 !important;
+    }
+    
+    .border-l {
+      border-left-color: #94a3b8 !important;
+    }
+    
+    span[class*="border-"], div[class*="border-"] {
+      border-color: #94a3b8 !important;
+    }
+    
+    span[class*="bg-"] {
+      background: #f1f5f9 !important;
+      color: black !important;
+    }
+    
+    /* Layout styling for prints */
+    .grid {
+      display: grid !important;
+    }
+    
+    @page {
+      margin: 15mm;
+    }
+  }
+</style>

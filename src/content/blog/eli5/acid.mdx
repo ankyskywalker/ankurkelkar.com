@@ -1,0 +1,27 @@
+---
+title: "ELI5: ACID Transactions"
+date: 2023-10-01
+description: "Why transferring money between bank accounts must be all-or-nothing."
+tags: ["ELI5", "ACID", "Databases"]
+draft: false
+---
+
+Imagine you want to transfer **$100** to your friend Bob using a mobile banking app.
+
+Under the hood, the bank's database has to perform two separate actions:
+1. **Subtract $100** from your account balance.
+2. **Add $100** to Bob's account balance.
+
+What happens if the bank's server loses power or crashes *exactly* after Step 1, but *before* Step 2? 
+If there are no safety guards, your $100 vanishes into thin air. You're down $100, Bob didn't get it, and you're calling customer service screaming.
+
+To prevent this, databases use **ACID** properties, which guarantee that transactions are safe:
+
+* **Atomicity (All-or-Nothing):** Either *both* steps succeed, or the transaction is aborted completely. If the database crashes halfway through your transfer, the bank rolls back Step 1 as if it never happened, and your $100 is returned to your account.
+* **Consistency (Rules are Rules):** The database guarantees that it will never violate its own rules. For example, your account balance cannot go below $0. If you try to transfer $100 but only have $50, the transaction is rejected.
+* **Isolation (Mind Your Own Business):** If 1,000 people are transferring money at the exact same millisecond, they shouldn't interfere with each other. The database processes each transfer in its own bubble so that nobody's balances get mixed up.
+* **Durability (Written in Stone):** Once the app says "Transfer Successful," the record is written to permanent storage. Even if the entire city's power grid goes down a millisecond later, the transaction is safe and won't be forgotten when the servers boot back up.
+
+[ACID transactions](https://en.wikipedia.org/wiki/ACID) were traditionally only available in slow, transactional databases (like PostgreSQL). Modern formats like [Delta Lake](https://delta.io/) bring full ACID guarantees to cheap cloud storage (Data Lakes), making big data engineering incredibly reliable.
+
+To see how ACID is enforced in Lakehouses, read [Databricks Lakehouse: Part 1 - Architecture & Delta Lake](/blog/databricks/01-intro).

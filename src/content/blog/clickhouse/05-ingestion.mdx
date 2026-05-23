@@ -5,70 +5,151 @@ description: "Getting data into ClickHouse: INSERTs, Formats, and Integrations."
 tags: ["ClickHouse", "Ingestion", "Formats", "Integrations"]
 part: "Part 5 of 10"
 cover: "../../../assets/images/clickhouse/part-5.png"
+draft: false
 ---
 
 <p class="lead text-xl text-gray-300 mb-8">
-    ClickHouse is hungry. It wants your data, and it wants it fast. In
-    this part, we'll cover the best ways to feed the beast.
+    ClickHouse is an ingestion beast. It can swallow millions of rows per second without breaking a sweat. But if you try to feed it like you feed PostgreSQL—inserting rows one by one as they happen—ClickHouse will throw a tantrum, lock up your disk, and crash with the dreaded "Too many parts in all partitions" error. Let's learn how to ingest data the right way.
 </p>
 
-<h2>The Golden Rule of Ingestion</h2>
-<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-yellow-500 my-8">
-    <h4 class="text-yellow-300 font-bold mb-2">Batch Your Inserts!</h4>
-    <p>
-        Never insert row by row. Always insert in large batches (at
-        least 1,000 rows, ideally 10,000+). Each insert creates a file
-        on disk, and too many small files will choke the server.
-    </p>
-</div>
+## The Golden Rule: Batch or Die
 
-<h2>Formats</h2>
-<p>ClickHouse supports dozens of formats. The most common ones are:</p>
-<ul class="list-disc ml-4 space-y-2 text-gray-300">
-    <li>
-        <strong>RowBinary:</strong> The fastest format. Use this if you can.
-    </li>
-    <li>
-        <strong>Native:</strong> ClickHouse's internal format. Extremely
-        fast.
-    </li>
-    <li>
-        <strong>JSONEachRow:</strong> Great for flexibility and debugging.
-    </li>
-    <li><strong>CSV/TSV:</strong> Good for legacy data.</li>
-</ul>
+Every time you run an `INSERT` statement in ClickHouse, it creates a new physical directory (part) on disk containing all the column files for those rows. 
 
-<h2>Inserting Data</h2>
-<pre class="language-sql">
--- Standard INSERT
-INSERT INTO hits (timestamp, user_id, url) VALUES 
-('2023-01-01 12:00:00', 1, '/home'),
-('2023-01-01 12:00:01', 2, '/about');
+If you insert 100 rows per second one by one:
+* ClickHouse creates **100 directories on disk every second**.
+* The background merger cannot keep up. ClickHouse wants to merge these folders, but it can only merge so fast.
+* The number of active parts climbs past 300, and ClickHouse aborts all inserts with:
+  `DB::Exception: Too many parts in all partitions in table...`
 
--- Inserting from a file (CLI)
-clickhouse-client --query "INSERT INTO hits FORMAT CSV" &lt; data.csv
-</pre>
+**The Rule:** Always batch your inserts. Write at least **10,000 rows** (ideally 100,000+) in a single `INSERT` statement. 
 
-<h2>Integrations</h2>
-<p>You can ingest data from almost anywhere:</p>
-<ul class="list-disc ml-4 space-y-2 text-gray-300">
-    <li>
-        <strong>Kafka:</strong> Use the Kafka table engine for direct streaming.
-    </li>
-    <li>
-        <strong>S3/GCS:</strong> Read directly from object storage using
-        the <code>S3</code> table function.
-    </li>
-    <li>
-        <strong>PostgreSQL/MySQL:</strong> Replicate data using the <code>MaterializedPostgreSQL</code> or <code>MySQL</code> engines.
-    </li>
-</ul>
+![Boromir row-by-row insert meme](/images/memes/boromir.jpg)
+*One does not simply row-by-row insert into a columnar database.*
 
-<h2>Conclusion</h2>
-<p>
-    Getting data in is half the battle. Now that we have data, let's
-    learn how to query it efficiently.
-</p>
+If your application cannot buffer data before sending it, you have two choices:
+1. Use an intermediary buffer like **Kafka** or **Vector** to aggregate rows.
+2. Turn on ClickHouse's built-in **Asynchronous Inserts** feature.
+
+### How to Configure Asynchronous Inserts
+Asynchronous inserts tell the ClickHouse server to buffer small inserts in memory and write them to disk in batches. Open your connection profile and run:
+
+```sql
+SET async_insert = 1;
+SET wait_for_async_insert = 0;
+```
+* `async_insert = 1`: Enables server-side buffering.
+* `wait_for_async_insert = 0`: The server returns a success status to the client immediately, writing the data in the background (fire-and-forget). If you want the client to wait until the data is safely written, set this to `1`.
+For configuration specifics, see the [ClickHouse Async Insert Documentation](https://clickhouse.com/docs/en/operations/settings/settings#async-insert).
+
+---
+
+## Loading Files via CLI
+
+ClickHouse supports dozens of file formats (CSV, TSV, JSONEachRow, Parquet, Native). The CLI is highly optimized for pipes.
+
+### Inserting JSON Logs
+Imagine you have a file `logs.json` where each line is a JSON object:
+```json
+{"timestamp":"2023-10-05 12:00:00","user_id":42,"action":"click"}
+{"timestamp":"2023-10-05 12:01:00","user_id":43,"action":"view"}
+```
+You can stream this file directly into ClickHouse:
+```bash
+clickhouse-client \
+  --database="default" \
+  --query="INSERT INTO user_logs FORMAT JSONEachRow" < logs.json
+```
+
+### Loading from CSV
+If you have a CSV file with headers, use the `CSVWithNames` format:
+```bash
+clickhouse-client \
+  --query="INSERT INTO my_table FORMAT CSVWithNames" < data.csv
+```
+
+---
+
+## Querying Object Storage (S3 & GCS) Directly
+
+You don't always have to load data into a table to query it. ClickHouse can query files sitting in AWS S3 or Google Cloud Storage directly using the `s3()` table function.
+
+```sql
+SELECT 
+    product_category,
+    SUM(quantity) AS total_sold
+FROM s3(
+    'https://s3.us-east-1.amazonaws.com/my-bucket/orders/*.parquet',
+    'AWS_ACCESS_KEY_ID',
+    'AWS_SECRET_ACCESS_KEY',
+    'Parquet'
+)
+GROUP BY product_category
+ORDER BY total_sold DESC
+LIMIT 5;
+```
+
+This is incredibly useful for ad-hoc exploration. If you decide you *do* want to load this data, just prepend `INSERT INTO my_table` to the query:
+
+```sql
+INSERT INTO orders_local
+SELECT * FROM s3('https://s3.us-east-1.amazonaws.com/my-bucket/orders/*.parquet', 'Parquet');
+```
+Read the [ClickHouse S3 Table Function Docs](https://clickhouse.com/docs/en/sql-reference/table-functions/s3) for format configurations.
+
+---
+
+## The Streaming Pipeline: Kafka Engine + Materialized View
+
+If you are streaming events from Apache Kafka, ClickHouse has a built-in integration pattern. 
+
+**Warning:** You cannot query a `Kafka` engine table directly (doing so consumes the messages, and they vanish). Instead, you use a **Materialized View** to act as a bridge that pulls messages from the Kafka topic and writes them to a standard `MergeTree` table.
+
+```
+[ Kafka Topic ] ===> [ Kafka Engine Table ] === ( Materialized View Bridge ) ===> [ Target MergeTree Table ]
+```
+
+### The 3-Step Setup
+
+#### Step 1: Create the Target Table (MergeTree)
+This is where your data will live permanently.
+```sql
+CREATE TABLE events_local (
+    timestamp DateTime,
+    user_id UInt64,
+    event_name String
+) ENGINE = MergeTree()
+ORDER BY (event_name, timestamp);
+```
+
+#### Step 2: Create the Kafka Engine Table
+This acts as a consumer client listening to the Kafka topic.
+```sql
+CREATE TABLE events_kafka_queue (
+    timestamp DateTime,
+    user_id UInt64,
+    event_name String
+) ENGINE = Kafka
+SETTINGS 
+    kafka_broker_list = 'localhost:9092',
+    kafka_topic_list = 'user-events',
+    kafka_group_name = 'clickhouse-consumer-group',
+    kafka_format = 'JSONEachRow',
+    kafka_num_consumers = 2;
+```
+
+#### Step 3: Create the Materialized View Bridge
+This background runner pulls data from the queue and inserts it into the target table.
+```sql
+CREATE MATERIALIZED VIEW events_kafka_mv TO events_local AS
+SELECT timestamp, user_id, event_name
+FROM events_kafka_queue;
+```
+
+Once the Materialized View is created, ClickHouse starts reading from Kafka in the background. The consumer offsets are managed automatically by ClickHouse Keeper or ZooKeeper.
+For scaling this pipeline, refer to the [ClickHouse Kafka Integration Docs](https://clickhouse.com/docs/en/engines/table-engines/integrations/kafka).
+
+Now that you have loaded millions of rows into ClickHouse, we need to extract them. In the next part, we'll master the art of querying and explore the secret weapon: `PREWHERE`.
 
 <div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
     <a href="/blog/clickhouse/04-modeling" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 4 - Data Modeling</a>

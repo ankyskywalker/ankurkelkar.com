@@ -1,0 +1,21 @@
+---
+title: "ELI5: Columnar Storage"
+date: 2023-10-01
+description: "Why reading data vertically is like using a laser instead of a vacuum cleaner."
+tags: ["ELI5", "Columnar Storage", "Databases"]
+draft: false
+---
+
+Imagine you have a giant spreadsheet with 1,000,000 rows. Each row contains information about a user: their ID, Name, Email, Address, Age, and favorite flavor of ice cream.
+
+Now, your boss walks in and asks: **"What is the average age of our users?"**
+
+In a **Row-Oriented** database (like PostgreSQL or MySQL), the data is stored on disk row by row. To calculate the average age, the database engine has to read the entire row (ID, Name, Email, Address, Age, Ice Cream) into memory, throw away everything except the Age, and move to the next row. It's like reading a 1,000-page book line-by-line, word-by-word, just to highlight the age of each character. You're wasting a massive amount of disk I/O reading data you don't care about.
+
+In a **Columnar** database (like [ClickHouse Columnar Storage](https://clickhouse.com/docs/en/about-us/column-oriented)), the data is stored column by column. The Age column is physically stored in its own set of files on disk. 
+
+When you ask for the average age, ClickHouse says: "Cool, I only need the Age file." It opens that file, reads the numbers directly, ignores all the other columns (no emails, no addresses, no ice cream flavors), and calculates the average. 
+
+It’s like tearing the "Age" column out of the spreadsheet and throwing the rest of the sheet in the trash. This makes analytical queries (OLAP) blazingly fast because you only pay the disk reading tax for the columns you actually query.
+
+For more technical details, check out [ClickHouse: Part 1 - Introduction & Architecture](/blog/clickhouse/01-intro).

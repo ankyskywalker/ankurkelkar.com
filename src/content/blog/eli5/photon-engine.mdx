@@ -1,0 +1,26 @@
+---
+title: "ELI5: The Photon Engine"
+date: 2023-10-09
+description: "Why replacing a family sedan's engine with a C++ rocket engine makes Spark fly."
+tags: ["ELI5", "Photon Engine", "Databricks", "Performance"]
+draft: false
+---
+
+To understand Photon, we have to talk about how Spark was originally built.
+
+### The Old Engine: The Family Sedan (The JVM)
+Apache Spark is written in Java and Scala. These languages run on something called the **Java Virtual Machine (JVM)**. 
+Think of the JVM like a reliable, standard family sedan. It's safe, comfortable, and gets you from A to B. But it has overhead. It needs to translate code into bytecode, manage memory automatically (which leads to "garbage collection pauses" where everything freezes for a second), and it isn't built to squeeze every ounce of performance out of modern computer chips.
+
+When you're processing petabytes of data, running on the JVM is like trying to win a Formula 1 race in a Toyota Camry.
+
+### The New Engine: The Rocket Engine (Photon)
+**Photon** is a completely new query engine built from scratch by Databricks, designed to replace the JVM engine for execution.
+
+1. **Written in C++:** Instead of Java, Photon is written in C++. This means it talks directly to the computer's hardware without the translation layer or the random memory freezes (no JVM garbage collection).
+2. **Vectorized Execution (SIMD):** Traditional engines process data row by row (do math on Row 1, then Row 2, then Row 3). Photon processes data in large chunks or vectors using modern CPU instructions (SIMD - Single Instruction, Multiple Data). It's like having a stamp that can print 100 letters at once instead of writing each one by hand.
+
+You don't have to rewrite your Spark code or SQL. You just turn on the Photon switch, and your queries run up to 10x faster because the underlying engine is built for raw, hardware-level speed.
+
+Read more about this engine and performance tuning in [Databricks Lakehouse: Part 9 - Tuning & Photon Engine](/blog/databricks/09-performance).
+For official deep-dive performance stats, check the [Databricks Photon Engine Docs](https://docs.databricks.com/en/compute/photon.html).
