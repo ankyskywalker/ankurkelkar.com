@@ -1,0 +1,135 @@
+---
+title: "Part 8: Data Governance & Unity Catalog"
+date: 2023-10-18
+description: "Mastering security, 3-tier namespaces, row/column permissions, and data lineage in Databricks."
+tags: ["Databricks", "Unity Catalog", "Governance", "Security"]
+part: "Part 8 of 10"
+cover: "../../../assets/images/databricks/part-8.png"
+draft: false
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    In the early days of Spark, security was an afterthought. If you had access to the cloud storage bucket, you had access to everything. If you wanted to hide a column from an analyst, you had to write a separate pipeline to copy the table and drop the column. Unity Catalog solved this by bringing unified governance directly to the Lakehouse.
+</p>
+
+## The 3-Tier Namespace
+
+Before [Unity Catalog (UC)](https://docs.databricks.com/en/data-governance/unity-catalog/index.html), referencing a table was simple: `database.table`. 
+
+Unity Catalog introduces a **3-tier namespace** which allows you to organize data across your entire enterprise:
+
+```text
+  [ Metastore ]  <-- The root storage container for a cloud region
+       │
+       ▼
+  [ Catalog ]    <-- e.g. dev, staging, prod, finance, marketing
+       │
+       ▼
+  [ Schema ]     <-- e.g. core, sales, logs, sandbox
+       │
+       ▼
+  [ Table / View / Volume ] <-- The actual physical data entities
+```
+
+To query a table in Unity Catalog, you write the full three-tier path:
+
+```sql
+SELECT * FROM prod.sales.orders_silver;
+```
+
+---
+
+## Centralized Access Control: SQL GRANTs
+
+Instead of managing IAM permissions or database passwords, Unity Catalog lets you control access using standard SQL commands.
+
+![Boromir Unity Catalog meme](/images/memes/boromir.jpg)
+*One does not simply manage cloud data access using thousands of individual IAM policies.*
+
+```sql
+-- Grant read permission to a table
+GRANT SELECT ON TABLE prod.sales.orders_silver TO `analysts-group`;
+
+-- Grant write permission to a schema
+GRANT CREATE TABLE ON SCHEMA prod.sales TO `data-engineers-group`;
+
+-- Revoke access
+REVOKE SELECT ON TABLE prod.sales.orders_silver FROM `contractors-group`;
+```
+
+> **ELI5:** What is Unity Catalog? Think of a corporate office building. Instead of giving everyone 50 physical keys, Unity Catalog is a master security desk that issues smart keycards. It controls who can enter which room, masks confidential data on the fly, and keeps a log of every file accessed. See [ELI5: Unity Catalog](/blog/eli5/unity-catalog) for the full breakdown.
+
+---
+
+## Fine-Grained Security: Row & Column Level Controls
+
+Sometimes, simple table-level permissions aren't enough. You might want analysts in Europe to only see European customer rows, or you might want to mask Social Security Numbers (SSN) for everyone except HR.
+
+### 1. Row-Level Security (Row Filters)
+You define a SQL function that determines who can see which rows based on their identity:
+
+```sql
+-- 1. Create the filter function
+CREATE FUNCTION sales.eu_only_filter(country STRING)
+RETURN IF(
+    IS_MEMBER('europe-analysts') OR IS_MEMBER('admin-group'),
+    TRUE,
+    country != 'Europe' -- Hide European rows for non-EU members
+);
+
+-- 2. Apply the function as a row filter to the table
+ALTER TABLE prod.sales.orders_silver 
+SET ROW FILTER sales.eu_only_filter ON (customer_country);
+```
+
+### 2. Column-Level Masking (Column Masks)
+You define a SQL function to obscure sensitive columns for unauthorized users:
+
+```sql
+-- 1. Create the masking function
+CREATE FUNCTION sales.ssn_mask(ssn STRING)
+RETURN CASE
+    WHEN IS_MEMBER('hr-group') THEN ssn
+    ELSE 'XXX-XX-XXXX' -- Mask for everyone else
+END;
+
+-- 2. Apply the mask function to the column
+ALTER TABLE prod.sales.employees 
+ALTER COLUMN social_security_number SET MASK sales.ssn_mask;
+```
+
+---
+
+## Managing Unstructured Data: Volumes
+
+Data is not just tables. You also have unstructured files—like PDF invoices, images, or CSV logs. 
+
+Unity Catalog manages these files using **Volumes**.
+
+* **Managed Volumes:** You don't specify a path. Unity Catalog creates a secure folder in your metastore's storage. If you drop the volume, the files are deleted.
+* **External Volumes:** Points to an existing folder in your S3/ADLS bucket. Dropping the volume only removes the metadata pointer; the files remain.
+
+```sql
+-- Create an External Volume for raw invoices
+CREATE EXTERNAL VOLUME prod.sales.invoices
+LOCATION 's3://my-company-bucket/raw/invoices/';
+```
+
+---
+
+## Automatic Data Lineage
+
+If you change a column name in a Silver table, how do you know which Gold tables or dashboards will break? 
+
+Unity Catalog automatically tracks **Data Lineage** at both the table and column levels. It captures every SQL query, Python script, and DLT pipeline executed in the workspace and maps the flow of data.
+
+You can open the catalog explorer in the UI and click the **Lineage** tab to view a visual flowchart showing where a column came from and where it is going, making impact analysis and auditing painless.
+
+For administrative settings and prerequisites, check the [Official Databricks Unity Catalog Setup Docs](https://docs.databricks.com/en/data-governance/unity-catalog/index.html).
+
+Now that our data is governed and secure, we need to maximize our query performance. In the next part, we'll cover the Photon Engine, Z-Ordering, and Liquid Clustering.
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/databricks/07-dlt" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 7 - Delta Live Tables Pipelines</a>
+    <a href="/blog/databricks/09-performance" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 9 - Performance & Photon Engine &rarr;</a>
+</div>

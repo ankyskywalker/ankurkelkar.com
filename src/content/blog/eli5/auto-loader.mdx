@@ -1,0 +1,28 @@
+---
+title: "ELI5: Databricks Auto Loader"
+date: 2023-10-05
+description: "Why checking the mail slot every 5 seconds is a waste of time compared to installing a smart sensor."
+tags: ["ELI5", "Auto Loader", "Databricks", "Ingestion"]
+draft: false
+---
+
+Imagine you are a mailroom clerk in a giant office building. Your job is to process incoming letters as soon as they arrive.
+
+### The Old Way: Manual Polling
+Every 5 minutes, you get up from your desk, walk down the hall, open the mail slot, look inside to see if there are any new letters, process them, and walk back. 
+
+This works fine when you get 2 letters a day. But if letters are arriving constantly at random intervals, this is incredibly exhausting and inefficient. You're wasting energy checking an empty box, and if a mountain of mail arrives right after you check, it sits there for 5 minutes before you notice.
+
+This is how traditional file ingestion works. The system has to scan the entire directory (which might contain millions of existing files) just to see if a new one was added. As the folder grows, this scan gets slower and more expensive.
+
+### The Auto Loader Way: Smart Sensors
+Instead of walking down the hall, you install a smart laser sensor in the mail slot. 
+
+The moment a letter falls through the slot, the sensor pings your phone: **"Hey, Letter #1234 just arrived!"** 
+
+You walk straight to the slot, grab that exact letter, process it, and sit back down. You didn't have to scan the whole room, you didn't check empty boxes, and you processed it the second it landed.
+
+This is exactly how [Databricks Auto Loader](https://docs.databricks.com/en/ingestion/auto-loader/index.html) works. It uses cloud file notification services (like AWS SNS/SQS or Azure Event Grid) to listen for new files landing in cloud storage. It only looks at the newly arrived files, completely bypassing the need to list millions of old files. This makes ingestion of streaming or batch files incredibly cheap, fast, and scalable.
+
+Read the setup guide in [Databricks Lakehouse: Part 5 - Batch & Stream Ingestion with Auto Loader](/blog/databricks/05-ingestion).
+For official options, consult the [Databricks Auto Loader Docs](https://docs.databricks.com/en/ingestion/auto-loader/index.html).

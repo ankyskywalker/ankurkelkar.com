@@ -1,0 +1,26 @@
+---
+title: "ELI5: Schema Enforcement vs. Schema Evolution"
+date: 2023-10-03
+description: "The difference between a strict bouncer at a club and updating the VIP guest list."
+tags: ["ELI5", "Schema", "Delta Lake", "Databricks"]
+draft: false
+---
+
+Imagine you run an exclusive nightclub. To keep the club organized and safe, you have a strict dress code: everyone must wear a hat, a shirt, and shoes.
+
+### Schema Enforcement: The Strict Bouncer
+**Schema Enforcement** is like having a giant, scary bouncer standing at the door. 
+
+If someone tries to walk in wearing a hat, a shirt, but **no shoes** (missing data), the bouncer stops them. If someone tries to walk in wearing a shirt, shoes, a hat, and **scuba gear** (unexpected extra columns), the bouncer kicks them out. 
+
+The bouncer’s job is to protect the people inside the club from chaos. In Delta Lake, Schema Enforcement ensures that any new data being written matches the existing table schema exactly. If it doesn't, the write operation is aborted, protecting your clean tables from being polluted by corrupt or mismatched data.
+
+### Schema Evolution: Updating the Rules
+Now, let’s say the club decides that starting next week, everyone is allowed to wear sunglasses. 
+
+Instead of firing the bouncer, you officially update the dress code rules. The next time someone shows up with sunglasses (new column), the bouncer checks the updated manual and lets them in. 
+
+This is **Schema Evolution**. It’s a controlled way to let your table schema change over time as your data requirements grow (e.g., adding a new column from an API). In Delta Lake, you can explicitly tell your write command to allow schema evolution, which safely adds the new columns and fills in `NULL` values for the older historical rows.
+
+For a full technical guide on managing these states, read [Databricks Lakehouse: Part 3 - Delta Tables & Schema Enforcement](/blog/databricks/03-delta-tables).
+For official settings, check out the [Delta Lake Schema Validation Docs](https://docs.databricks.com/en/delta/update-schema.html).

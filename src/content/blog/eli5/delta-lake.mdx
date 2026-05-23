@@ -1,0 +1,28 @@
+---
+title: "ELI5: Delta Lake"
+date: 2023-10-01
+description: "Why Delta Lake is like Google Docs for your raw data files."
+tags: ["ELI5", "Delta Lake", "Databricks"]
+draft: false
+---
+
+Imagine you and three coworkers are trying to edit a single report. 
+
+### The Old Way: Shared Text File
+You store the report as a plain text file on a shared network drive. 
+* There is no version history. If someone deletes a page and saves the file, it's gone forever.
+* There is no locking. If you and Bob open the file at 2:00 PM, make changes, and Bob saves at 2:01 PM, and you save at 2:02 PM, you have completely overwritten and destroyed Bob's work.
+* There are no formatting rules. Bob can write random garbage or delete columns, and the file will just accept it.
+
+This is what it's like to work with raw data files (like Parquet or CSV) in a traditional Data Lake.
+
+### The Delta Lake Way: Google Docs
+Delta Lake is like converting that plain text file into a Google Doc. 
+* **Transaction Log:** Every single edit is recorded in a history log. You can see who did what, when, and you can roll back to any version in the past (this is called **Time Travel**).
+* **ACID Transactions:** If you try to save a massive update and your computer crashes halfway, Delta Lake rolls back the change completely so the file doesn't end up corrupted.
+* **Schema Enforcement:** If someone tries to write data with the wrong format or missing columns, Delta Lake stops them at the door and says: "Nope, this doesn't match the schema."
+
+Under the hood, [Delta Lake](https://delta.io/) is still just a bunch of standard Parquet files sitting in your cheap cloud storage, but it wraps them in a transaction log (the `_delta_log/` folder) that adds safety, speed, and history.
+
+To see how to set up Delta tables, check out [Databricks Lakehouse: Part 3 - Delta Tables & Schema Enforcement](/blog/databricks/03-delta-tables).
+For official specifications, consult the [Delta Lake Documentation](https://docs.delta.io/latest/index.html).

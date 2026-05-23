@@ -1,0 +1,35 @@
+---
+title: "ELI5: Delta Live Tables (DLT)"
+date: 2023-10-07
+description: "Why DLT is like designing a self-monitoring automated assembly line."
+tags: ["ELI5", "Delta Live Tables", "Databricks", "Pipelines"]
+draft: false
+---
+
+Imagine you want to build a toy factory.
+
+### The Manual Way (Traditional Pipelines)
+You buy a conveyor belt, some gears, and assembly tables. You hire workers to stand at each station. 
+* Station 1 worker has to manually check if the plastic parts are arriving. If they are, they glue them and put them on the belt.
+* Station 2 worker gets the parts. If a part is broken, they have to manually throw it in the trash and count how many they threw away on a clipboard.
+* If a machine at Station 3 breaks down, the whole line jams, toys pile up, and you don't know it until you walk into the factory and see smoke.
+
+You are responsible for connecting every single pipe, monitoring every worker, and handling every error manually.
+
+### The Delta Live Tables Way
+Instead of building the conveyor belts and monitoring them yourself, you hire a factory automation service. You show them a blueprint:
+1. **Source:** Raw materials enter here.
+2. **Step A:** Clean the parts. **Rule:** If a part doesn't have a head, move it to the "defects" bin and notify the supervisor (this is called an **Expectation**).
+3. **Step B:** Assemble and paint.
+4. **Destination:** Store the finished toys in the warehouse.
+
+You turn the key. The automation system builds the conveyor belts, hires the workers, starts the line, monitors the speed of the belts, handles automatic scaling if a flood of raw materials arrives, and shows you a beautiful dashboard of how many toys are being made and how many defects are being thrown away.
+
+This is **Delta Live Tables (DLT)**. 
+
+In Databricks, instead of writing complex Spark code to read files, write files, manage checkpoints, handle schema changes, and write error-handling code, you write a declarative script that simply describes the relationship between your tables (e.g., "Table B reads from Table A and cleans it"). 
+
+The DLT engine takes care of the infrastructure, scheduling, error handling, retries, and data quality monitoring automatically.
+
+Read how to build these automated pipelines in [Databricks Lakehouse: Part 7 - Delta Live Tables Pipelines](/blog/databricks/07-dlt).
+For official architecture patterns, read the [Databricks Delta Live Tables Docs](https://docs.databricks.com/en/delta-live-tables/index.html).

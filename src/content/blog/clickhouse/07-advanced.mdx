@@ -5,71 +5,142 @@ description: "Unlock the power of Arrays, Maps, and Window Functions in ClickHou
 tags: ["ClickHouse", "Arrays", "Maps", "Window Functions"]
 part: "Part 7 of 10"
 cover: "../../../assets/images/clickhouse/part-7.png"
+draft: false
 ---
 
 <p class="lead text-xl text-gray-300 mb-8">
-    ClickHouse isn't just for flat tables. It has first-class support
-    for complex data types like Arrays and Maps, making it perfect for
-    analyzing JSON logs and time-series data.
+    Many developers assume analytical databases only work well with flat, boring tables. But ClickHouse treats nested data structures—like Arrays and Maps—as first-class citizens. You can perform functional programming, write inline lambdas, parse JSON on the fly, and run window functions directly inside ClickHouse. Let's unlock these advanced tools.
 </p>
 
-<h2>Working with Arrays</h2>
-<p>
-    Arrays are everywhere in ClickHouse. You can store them, query them,
-    and even unnest them.
-</p>
-<pre class="language-sql">
+## Mastering Arrays with Functional Programming
+
+ClickHouse has some of the most robust array manipulation functions in the database world. Instead of writing slow nested loops or subqueries, you can use **lambda expressions** to filter and transform arrays directly in your SQL.
+
+### The Basic Array Toolkit
+Let's look at standard array features first:
+```sql
 SELECT
-    ['a', 'b', 'c'] AS my_array,
-    has(my_array, 'b') AS contains_b,
-    length(my_array) AS len,
-    arrayJoin(my_array) AS unnested_value;
-</pre>
-<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-purple-500 my-8">
-    <h4 class="text-purple-300 font-bold mb-2">arrayJoin()</h4>
-    <p>
-        This function is special. It "explodes" an array into multiple
-        rows, similar to <code>UNNEST</code> in BigQuery or <code>LATERAL VIEW EXPLODE</code> in Hive.
-    </p>
-</div>
+    [1, 2, 3, 4] AS numbers,
+    has(numbers, 3) AS contains_three,     -- Returns 1 (true)
+    length(numbers) AS size,               -- Returns 4
+    numbers[2] AS second_element           -- Returns 2 (1-indexed!)
+```
 
-<h2>Maps (Key-Value Pairs)</h2>
-<p>
-    Maps are great for semi-structured data where the schema might
-    evolve.
-</p>
-<pre class="language-sql">
-CREATE TABLE logs (
+### Functional Programming: `arrayMap` and `arrayFilter`
+Say you have a table storing temperature metrics as an array: `[15.0, 22.5, 30.1]`. You want to convert these to Fahrenheit and filter out any temperatures below 70°F.
+
+You can write this using lambdas:
+
+```sql
+SELECT
+    -- 1. Convert Celcius to Fahrenheit
+    arrayMap(x -> (x * 9/5) + 32, [15.0, 22.5, 30.1]) AS fahrenheit_temps,
+    
+    -- 2. Filter out values less than 70
+    arrayFilter(x -> x >= 70, fahrenheit_temps) AS hot_temps;
+```
+* `arrayMap(x -> expression, array)`: Applies the lambda function to every element in the array.
+* `arrayFilter(x -> condition, array)`: Returns a new array containing only elements that satisfy the condition.
+
+### Unnesting Arrays with `arrayJoin`
+If you need to convert an array into individual rows (similar to `UNNEST` in BigQuery or `EXPLODE` in Hive), use `arrayJoin()`:
+
+```sql
+-- Create some dummy data
+SELECT 
+    user_id,
+    arrayJoin(['tech', 'finance', 'sports']) AS interest
+FROM (SELECT 1 AS user_id);
+```
+Output:
+```text
+┌─user_id─┬─interest─┐
+│       1 │ tech     │
+│       1 │ finance  │
+│       1 │ sports   │
+└─────────┴──────────┘
+```
+**Performance Tip:** Be careful with `arrayJoin`. It duplicates the other columns in the row for every array element, which multiplies the data volume in memory. Use it late in your query lifecycle.
+For a complete list of array functions, refer to the [ClickHouse Array Functions Docs](https://clickhouse.com/docs/en/sql-reference/functions/array-functions).
+
+---
+
+## Maps: Key-Value Pairs Under the Hood
+
+The `Map(Key, Value)` data type is perfect for semi-structured data where the keys are not known in advance—such as custom user attributes or query parameters.
+
+### Physical Storage of Maps
+A common misconception is that ClickHouse stores Maps as serialized JSON strings. It doesn't. 
+
+Under the hood, `Map(String, String)` is stored as **two parallel arrays**: a keys array `Array(String)` and a values array `Array(String)`. 
+* When you query `attributes['browser']`, ClickHouse searches the keys array for `'browser'`.
+* It identifies the index of the key and pulls the corresponding value from the values array.
+This physical layout maintains columnar scan performance even for maps with thousands of keys.
+
+Let's look at a schema utilizing Maps:
+
+```sql
+CREATE TABLE events_map (
     timestamp DateTime,
+    event_name String,
     attributes Map(String, String)
 ) ENGINE = MergeTree()
 ORDER BY timestamp;
 
--- Querying a map
-SELECT attributes['user_agent'] FROM logs;
-</pre>
+-- Inserting a map
+INSERT INTO events_map VALUES 
+('2023-10-07 12:00:00', 'click', {'browser':'Chrome', 'version':'118', 'os':'macOS'});
 
-<h2>Window Functions</h2>
-<p>
-    ClickHouse supports standard SQL window functions, allowing you to
-    perform calculations across a set of table rows that are somehow
-    related to the current row.
-</p>
-<pre class="language-sql">
+-- Querying the map
+SELECT 
+    attributes['os'] AS os_type,
+    count() AS total
+FROM events_map
+WHERE attributes['browser'] = 'Chrome'
+GROUP BY os_type;
+```
+
+---
+
+## Processing JSON Logs on the Fly
+
+If you are ingesting raw JSON strings into a standard `String` column, you can extract values dynamically using the `JSONExtract*` family of functions:
+
+```sql
+WITH '{"user": {"id": 101, "name": "Ankur"}, "tags": ["admin", "dev"]}' AS json_raw
+SELECT
+    JSONExtractInt(json_raw, 'user', 'id') AS user_id,
+    JSONExtractString(json_raw, 'user', 'name') AS user_name,
+    JSONExtractArrayRaw(json_raw, 'tags') AS tags_raw;
+```
+For deep nested JSON parsing specs, see the [ClickHouse JSON Extraction Documentation](https://clickhouse.com/docs/en/sql-reference/functions/json-functions).
+
+---
+
+## Window Functions: Syntactic Sugar with a Price
+
+ClickHouse supports standard SQL window functions (like `ROW_NUMBER()`, `RANK()`, `LEAD()`, `LAG()`, and `SUM() OVER ()`):
+
+```sql
 SELECT
     user_id,
     timestamp,
-    count() OVER (PARTITION BY user_id ORDER BY timestamp) AS user_event_count
-FROM events;
-</pre>
+    revenue,
+    sum(revenue) OVER (PARTITION BY user_id ORDER BY timestamp ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_revenue
+FROM orders_flat;
+```
 
-<h2>Conclusion</h2>
-<p>
-    With Arrays, Maps, and Window Functions, you can solve complex
-    analytical problems directly in the database, without needing
-    external processing tools. Next, we'll tackle one of the most
-    powerful features for real-time analytics: Materialized Views.
-</p>
+### The Performance Caveat
+While window functions are powerful, they should be used with caution in high-performance analytical environments. 
+
+ClickHouse is built to process data in streaming blocks. Because a window function requires sorting and partition grouping across potentially the entire dataset, **it forces ClickHouse to break its streaming model, buffer the data in memory, and perform single-threaded sorts.**
+
+If you run a window function over a table with 500 million rows, you risk crashing your server with an Out-of-Memory (OOM) error. Where possible, try to pre-aggregate data using **Materialized Views** before applying window calculations.
+
+![Boromir window function meme](/images/memes/boromir.jpg)
+*One does not simply run a window function over a billion rows without checking the memory footprint.*
+
+We will cover Materialized Views in Part 8.
 
 <div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
     <a href="/blog/clickhouse/06-querying" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 6 - Querying Basics</a>

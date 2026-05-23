@@ -1,0 +1,25 @@
+---
+title: "ELI5: Materialized Views"
+date: 2023-10-08
+description: "Why keeping a running tally on a whiteboard is faster than counting receipts from scratch."
+tags: ["ELI5", "Materialized Views", "ClickHouse", "Databases"]
+draft: false
+---
+
+Imagine you run a lemonade stand. Every time a customer buys a cup, you write down a receipt with the time, customer's name, cup size, and price, and drop it into a box.
+
+At the end of the day, your mom asks: **"How much money did you make today?"**
+
+### The Traditional View Way
+You open the box, dump out all 5,000 receipts, and manually add up the price of every single receipt. This takes you 30 minutes. If she asks again in an hour, you have to count them all over again. 
+
+### The Materialized View Way
+Instead of doing math from scratch every time, you hang a whiteboard next to the cash register. 
+You write **"Total Revenue: $0"** at the top. 
+
+Every time you drop a receipt into the box, you immediately update the whiteboard. If you sell a $2.00 cup, you cross out the old number and write the new total. 
+When your mom walks up and asks for the total, you don't touch the receipt box. You just point at the whiteboard. The answer is instant.
+
+In [ClickHouse Materialized Views](https://clickhouse.com/docs/en/sql-reference/statements/create/view#materialized-views), the view is not just a saved query. It is a real-time data pipe that listens for new inserts on a raw table (the receipt box), aggregates the data on the fly (calculates the sum/count), and writes it directly to a target table (the whiteboard). When you query the materialized view, you read the pre-aggregated table instantly.
+
+Read how to implement this in [ClickHouse: Part 8 - Materialized Views](/blog/clickhouse/08-materialized-views).

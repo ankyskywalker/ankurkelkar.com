@@ -5,52 +5,119 @@ description: "Best practices for schema design, primary keys, and denormalizatio
 tags: ["ClickHouse", "Data Modeling", "Schema Design"]
 part: "Part 4 of 10"
 cover: "../../../assets/images/clickhouse/part-4.png"
+draft: false
 ---
 
 <p class="lead text-xl text-gray-300 mb-8">
-    Modeling data in ClickHouse is different from traditional relational
-    databases. Forget 3rd Normal Form; here, we embrace denormalization.
+    If you try to design a ClickHouse schema using the Third Normal Form (3NF) you learned in university, you are going to have a bad time. OLAP databases hate joins. They don't want clean, separated entities. They want wide, flat, ugly, denormalized tables. Let's look at how to model data for maximum query speed.
 </p>
 
-<h2>Denormalization is King</h2>
-<p>
-    Joins in distributed systems are expensive. In ClickHouse, it's
-    often better to store wide tables with many columns rather than
-    joining multiple tables at query time.
-</p>
+## The Cost of Joins at Scale
 
-<h2>Choosing a Primary Key</h2>
-<p>
-    The primary key in ClickHouse (defined in <code>ORDER BY</code>)
-    determines how data is sorted on disk. This is critical for query
-    performance.
-</p>
-<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-orange-500 my-8">
-    <h4 class="text-orange-300 font-bold mb-2">Rule of Thumb</h4>
-    <p>
-        Choose columns that you frequently filter by in your <code>WHERE</code> clause. Put low-cardinality columns first in the key.
-    </p>
-</div>
+In a traditional relational database (like PostgreSQL), you split data to avoid redundancy. You have an `orders` table, a `customers` table, and a `products` table. When you run a report, you join them:
 
-<h2>Data Types Matter</h2>
-<p>Using the correct data types saves storage and improves speed.</p>
-<ul class="list-disc ml-4 space-y-2 text-gray-300">
-    <li>
-        Use <code>LowCardinality(String)</code> for strings with few unique
-        values.
-    </li>
-    <li>
-        Use <code>DateTime</code> or <code>DateTime64</code> for timestamps.
-    </li>
-    <li>Use <code>UInt*</code> types for non-negative numbers.</li>
-</ul>
+```sql
+-- Great in Postgres. Slow in ClickHouse at scale.
+SELECT c.country, SUM(o.total_amount)
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+GROUP BY c.country;
+```
 
-<h2>Conclusion</h2>
-<p>
-    A well-designed schema is the foundation of a fast ClickHouse
-    cluster. In the next part, we'll learn how to get data INTO that
-    schema.
-</p>
+In a distributed OLAP database, a `JOIN` is an incredibly expensive operation. The database engine has to copy the `customers` table across the network to every single node in the cluster (a **Broadcast Join**) or shuffle the data from both tables across the network based on the join key (a **Hash Shuffle Join**). Network latency and serialization will choke your queries.
+
+ClickHouse's design philosophy is simple: **disk space is cheap, CPU cycles are cheap, but network and random memory access are slow.** 
+
+Therefore, you should denormalize your tables. Put the customer’s country, name, and product category directly into the `orders` table at ingestion time. Yes, you will write duplicate strings millions of times, but ClickHouse’s compression will compress those duplicate values down to next to nothing, and your queries will scan a single table without touching the network.
+
+![Distracted Boyfriend Denormalization](/images/memes/distracted-boyfriend.jpg)
+*Data engineers looking at a single 200-column flat table while their normalization textbook screams in horror.*
+
+---
+
+## Normalized vs. Denormalized: E-Commerce Case Study
+
+Let's design a schema for an e-commerce store tracking orders.
+
+### The Normalized Way (Anti-Pattern)
+If you build this with separate tables:
+* `orders`: `id`, `timestamp`, `customer_id`, `product_id`, `quantity`, `price`
+* `customers`: `id`, `name`, `email`, `country`, `marketing_segment`
+* `products`: `id`, `name`, `category`, `sku`
+
+To find revenue by country and product category, you have to run a 3-way join.
+
+### The ClickHouse Way (Flat Table Pattern)
+We merge everything into a single, wide table. Save this DDL:
+
+```sql
+CREATE TABLE orders_flat (
+    order_id UInt64,
+    timestamp DateTime CODEC(DoubleDelta, LZ4),
+    customer_id UInt64,
+    customer_name String,
+    customer_country LowCardinality(String),
+    customer_segment LowCardinality(String),
+    product_id UInt64,
+    product_sku LowCardinality(String),
+    product_category LowCardinality(String),
+    quantity UInt16,
+    price Float64 CODEC(Gorilla, ZSTD),
+    revenue Float64 CODEC(Gorilla, ZSTD)
+) ENGINE = MergeTree()
+PARTITION BY toYYYYMM(timestamp)
+ORDER BY (customer_country, product_category, timestamp);
+```
+
+For more schema patterns, consult the official [ClickHouse Schema Design Guide](https://clickhouse.com/docs/en/guides/squeezing-each-active-byte/schema-design).
+
+---
+
+## ClickHouse Specific Data Types (The Optimization details)
+
+Look closely at the data types in our DDL. We didn't just use standard `String` or `Float64` everywhere. Here is why:
+
+### 1. `LowCardinality(T)`
+When you have a column with a small number of unique values (like `country`, `product_category`, or `customer_segment`), wrap it in `LowCardinality()`. 
+
+Instead of writing the full string `"United States"` a million times, ClickHouse creates a dictionary under the hood:
+* It maps `"United States"` to `1`, `"Canada"` to `2`, etc.
+* It writes the compact integer keys to disk.
+* It only stores the string dictionary once.
+
+This reduces the storage footprint by up to **90%** and speeds up queries because comparing integers is much faster for a CPU than comparing strings. As a rule of thumb, use `LowCardinality` for any string column with less than 10,000 unique values.
+
+### 2. Avoid `Nullable` Like the Plague
+In PostgreSQL, you mark columns as `NULL` if they don't have a value. In ClickHouse, **avoid `Nullable` whenever possible.**
+
+When you define a column as `Nullable(String)`, ClickHouse physically creates an extra file on disk called `[column].null`. 
+* This file contains a byte array of `1`s and `0`s to keep track of which rows are null.
+* During queries, ClickHouse has to read this extra file, which degrades scan performance.
+
+**The Alternative:** Use default sentinel values. Instead of a null string, use an empty string `''`. Instead of a null integer, use `-1` or `0`. Set your column default:
+
+```sql
+-- Better than Nullable
+parent_id Int64 DEFAULT -1
+```
+
+### 3. Compression Codecs
+We explicitly added codecs to our DDL:
+* `timestamp DateTime CODEC(DoubleDelta, LZ4)`: `DoubleDelta` computes the difference between adjacent timestamps. Since timestamps are sorted, the differences are tiny, making them compress incredibly well.
+* `price Float64 CODEC(Gorilla, ZSTD)`: `Gorilla` is a specialized codec for floating-point values that exploits XOR patterns in consecutive floats.
+
+---
+
+## Selecting the Sorting Key (`ORDER BY`)
+
+Your primary sorting key (defined in `ORDER BY`) is the single most important decision you make. 
+In our table, we chose `ORDER BY (customer_country, product_category, timestamp)`.
+
+* Place the columns you filter by most frequently in the key.
+* Put low-cardinality columns first. Since we put `customer_country` first, ClickHouse sorts the rows on disk by country first, then by category, then by timestamp. This maximizes compression and allows the sparse index to skip massive sections of disk.
+* Do not put high-cardinality columns (like `order_id` or unique `timestamp` values) at the front of your key unless you want a slow sparse index that eats up all your RAM.
+
+Now that we have designed our flat table, we need to load data into it. In the next part, we'll discuss the golden rules of ingestion and how to stream data from Kafka and S3.
 
 <div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
     <a href="/blog/clickhouse/03-mergetree" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 3 - The MergeTree Family</a>

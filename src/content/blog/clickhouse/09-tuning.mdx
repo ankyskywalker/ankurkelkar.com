@@ -5,65 +5,133 @@ description: "Squeeze every ounce of performance out of ClickHouse with these tu
 tags: ["ClickHouse", "Performance", "Optimization", "Indexes"]
 part: "Part 9 of 10"
 cover: "../../../assets/images/clickhouse/part-9.png"
+draft: false
 ---
 
 <p class="lead text-xl text-gray-300 mb-8">
-    ClickHouse is fast by default, but it can be blazing fast if you
-    know how to tune it. In this part, we'll cover indexes, compression,
-    and query optimization.
+    ClickHouse is fast out of the box, but if you're querying petabytes of data, "fast out of the box" isn't enough. To get sub-second response times on massive datasets, you need to master advanced tuning: choosing the perfect sorting key, adding skipping indexes, configuring column-level codecs, and reading execution plans. Let's optimize.
 </p>
 
-<h2>Primary Keys & Sorting</h2>
-<p>
-    The single most important factor for performance is your <code>ORDER BY</code> clause. It determines the primary key and how data is physically sorted
-    on disk.
-</p>
-<div class="bg-slate-800/50 p-6 rounded-lg border-l-4 border-orange-500 my-8">
-    <h4 class="text-orange-300 font-bold mb-2">
-        Tip: Low Cardinality First
-    </h4>
-    <p>
-        Always put columns with lower cardinality (fewer unique values)
-        first in your primary key. This makes the index more effective.
-    </p>
-</div>
+## Sorting Keys: The Foundation of Performance
 
-<h2>Skipping Indexes</h2>
-<p>
-    For columns not in the primary key, you can use data skipping
-    indexes to speed up queries.
-</p>
-<pre class="language-sql">
-ALTER TABLE hits 
-ADD INDEX idx_user_agent user_agent TYPE set(0) GRANULARITY 1;
-</pre>
+As we discussed in Part 3, ClickHouse doesn't use B-Tree indexes. It physically sorts data files on disk based on the `ORDER BY` clause. 
 
-<h2>Compression Codecs</h2>
-<p>
-    ClickHouse supports column-level compression. <code>ZSTD</code> is generally
-    the best balance between ratio and speed, while <code>Delta</code> is
-    amazing for time-series data.
-</p>
-<pre class="language-sql">
-CREATE TABLE metrics (
-    timestamp DateTime CODEC(Delta, ZSTD),
-    value Float64 CODEC(Gorilla, ZSTD)
+If your table is ordered by `(customer_country, timestamp)`, ClickHouse sorts the rows first by country, and then by timestamp within each country. 
+
+### Multi-Column Sort Visualization
+Imagine the physical rows written to disk:
+```text
+Row 1: CA | 2023-10-01 12:00:00
+Row 2: CA | 2023-10-01 13:00:00
+Row 3: US | 2023-10-01 11:00:00
+Row 4: US | 2023-10-01 12:00:00
+```
+Because the rows are sorted, the primary index (`primary.idx`) stores the values for every 8,192nd row. If you query `WHERE customer_country = 'US'`, the sparse index tells ClickHouse exactly which mark range to skip, letting it ignore the Canadian rows entirely.
+
+> **ELI5:** What is sorting and indexing in multidimensional space? How does it differ from sorting in a flat database? Read [ELI5: Z-Ordering](/blog/eli5/z-ordering) for the breakdown.
+
+---
+
+## Data Skipping Indexes (Secondary Indexes)
+
+What happens if you want to query a column that is *not* in your `ORDER BY` key? 
+
+For example, your table is sorted by `(customer_country, timestamp)`, but users want to search for a specific `user_agent`. Normally, ClickHouse would have to do a full scan of the `user_agent` column file on disk.
+
+To prevent this, you can add a **Data Skipping Index** (also known as a secondary index). 
+
+Unlike primary keys, which sort the data, skipping index files store aggregated information about column values for each **Mark Range** (every 8,192 rows). When a query runs, ClickHouse checks the skipping index file to see if the search term exists in that mark range. If it doesn't, it skips reading the corresponding data blocks.
+
+![Distracted Boyfriend Skipping Index](/images/memes/distracted-boyfriend.jpg)
+*Data engineers choosing bloom_filter skipping indexes over doing full table scans on high-cardinality text columns.*
+
+### The Three Index Types:
+1. **`minmax`:** Stores the minimum and maximum values of the column for each mark range. Best for dates, timestamps, or sequential IDs.
+2. **`set(N)`:** Stores a set of unique values (up to N values) for each mark range. Best for columns with low cardinality (like status codes, category IDs).
+3. **`bloom_filter(false_positive_rate)`:** Uses a mathematical Bloom filter to check if a value is present. Best for high-cardinality columns (like user IDs, URLs, search terms).
+
+### Adding and Materializing a Skipping Index
+Let's add a Bloom filter index to a `user_agent` column:
+
+```sql
+-- 1. Define the index on the table
+ALTER TABLE orders_flat
+ADD INDEX idx_user_agent user_agent TYPE bloom_filter(0.01) GRANULARITY 1;
+
+-- 2. Materialize the index for existing historical files
+ALTER TABLE orders_flat
+MATERIALIZE INDEX idx_user_agent;
+```
+* `TYPE bloom_filter(0.01)`: Creates a Bloom filter with a 1% false positive rate.
+* `GRANULARITY 1`: Tells ClickHouse to write one index mark for every single primary index mark range (every 8,192 rows). If granularity was set to `2`, it would write one index mark for every 16,384 rows.
+
+For details, consult the [ClickHouse Skipping Indexes Docs](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/data-skipping-indexes).
+
+---
+
+## Compression Codecs: Squeezing the Disk
+
+ClickHouse supports column-level compression codecs. By choosing the right codec for the right data type, you can dramatically reduce disk space and speed up queries (because less compressed data needs to be read from disk).
+
+| Codec | Target Data Type | How it Works |
+| :--- | :--- | :--- |
+| **`DoubleDelta`** | Monotonically increasing values (Timestamps, Auto-increment IDs) | Computes differences between adjacent differences. Reduces sorted series to tiny integers. |
+| **`Gorilla`** | Floating-point values (Sensor data, stock prices) | Exploits XOR patterns in successive float representations. |
+| **`T64`** | Integers with small ranges | Truncates unused high bits of integer columns. |
+| **`ZSTD(level)`** | Text, JSON, high-cardinality strings | Standard high-ratio compression algorithm. |
+
+Example of applying combined codecs:
+
+```sql
+CREATE TABLE metric_snapshots (
+    timestamp DateTime CODEC(DoubleDelta, LZ4),
+    device_id UInt32 CODEC(T64, LZ4),
+    temperature Float64 CODEC(Gorilla, ZSTD(3))
 ) ENGINE = MergeTree()
-ORDER BY timestamp;
-</pre>
+ORDER BY (device_id, timestamp);
+```
+Read the [ClickHouse Codecs Guide](https://clickhouse.com/docs/en/sql-reference/statements/create/table#compression-codecs) to match data shapes to codecs.
 
-<h2>Query Optimization</h2>
-<p>
-    Use the <code>EXPLAIN</code> statement to understand how your query is
-    being executed. Look out for full table scans and inefficient joins.
-</p>
+---
 
-<h2>Conclusion</h2>
-<p>
-    Tuning is an iterative process. Measure, tune, and measure again. In
-    the final part of this series, we'll discuss scaling ClickHouse to
-    handle petabytes of data.
-</p>
+## Query Profiling with `EXPLAIN`
+
+To verify if your partitions, sorting keys, and skipping indexes are actually working, prep your query with `EXPLAIN`.
+
+```sql
+EXPLAIN plan = 1, indexes = 1
+SELECT count() 
+FROM orders_flat 
+WHERE customer_country = 'US' AND user_agent LIKE '%Chrome%';
+```
+
+### What to Look For in the Output:
+```text
+Expression ((Projection + Before ORDER BY))
+  Filter (WHERE)
+    ReadFromMergeTree (orders_flat)
+    Indexes:
+      PrimaryKey
+        Keys: customer_country
+        Condition: (customer_country = 'US')
+        Parts: 3/10
+        Granules: 15/150
+      Skip
+        Indexes: idx_user_agent
+        Condition: (user_agent LIKE '%Chrome%')
+        Parts: 1/3
+        Granules: 2/15
+```
+
+* **`PrimaryKey` -> `Parts: 3/10`:** Shows that partition pruning successfully skipped 7 out of 10 disk parts.
+* **`PrimaryKey` -> `Granules: 15/150`:** Shows the primary index successfully skipped 135 out of 150 granules.
+* **`Skip` -> `Granules: 2/15`:** Shows the `idx_user_agent` skipping index successfully skipped 13 of the remaining 15 granules, meaning ClickHouse only read 2 data blocks from disk to answer the query.
+
+If your explain plan shows `Granules: 150/150`, your indexing strategy isn't working, and ClickHouse is doing a full table scan.
+
+For deep pipeline profiling, read the [ClickHouse EXPLAIN Statement Docs](https://clickhouse.com/docs/en/sql-reference/statements/explain).
+
+Now that we have tuned our single-node performance, we are ready to scale horizontally. In the final part, we'll talk about Sharding, Replication, and Distributed Clusters.
 
 <div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
     <a href="/blog/clickhouse/08-materialized-views" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 8 - Materialized Views</a>

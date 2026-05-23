@@ -1,0 +1,25 @@
+---
+title: "ELI5: The MergeTree Engine"
+date: 2023-10-03
+description: "Why sorting letters in batches is better than sorting them one by one."
+tags: ["ELI5", "MergeTree", "ClickHouse"]
+draft: false
+---
+
+Imagine you are a clerk at a post office, and your job is to sort all incoming mail by zip code and file it away. 
+
+### Method A: Sort immediately (The Relational DB Way)
+Every single time a mail truck drops off a single letter, you walk over to the filing cabinets, find the exact folder for that zip code, slide the letter in, and walk back. 
+If 10,000 letters arrive in an hour, you're going to pass out from exhaustion. Your legs are the bottleneck (disk I/O).
+
+### Method B: Sort in batches (The MergeTree Way)
+Instead of walking to the cabinets for every letter, you place a big bin on your desk. When letters arrive, you just throw them into the bin (memory buffer). 
+
+1. Once the bin fills up (say, 1,000 letters), you sit down, sort those 1,000 letters by zip code, tie them with a rubber band, and throw that sorted bundle into the cabinet. This bundle is called a **part**.
+2. An hour later, you do the same thing and throw another sorted bundle of 1,000 letters into the cabinet.
+3. Now you have a bunch of small, sorted bundles. Finding a zip code still requires checking multiple bundles.
+4. To fix this, while you're waiting for more mail, you take two small bundles from the cabinet, merge them into one larger sorted bundle of 2,000 letters, and put it back. This is the **merge** process, and it happens in the background.
+
+This is exactly how the [ClickHouse MergeTree Engine](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree) works. Inserts are extremely fast because they are written to disk as sorted "parts" almost instantly. ClickHouse then periodically merges these parts in the background to keep the index tight and fast.
+
+Read the full technical deep dive in [ClickHouse: Part 3 - The MergeTree Family](/blog/clickhouse/03-mergetree).

@@ -1,0 +1,94 @@
+---
+title: "Part 2: Workspace & Cluster Setup"
+date: 2023-10-12
+description: "How to configure Databricks clusters without accidentally bankrupting your company."
+tags: ["Databricks", "Compute", "Clusters", "Infrastructure"]
+part: "Part 2 of 10"
+cover: "../../../assets/images/databricks/part-2.png"
+draft: false
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Running a query in Databricks requires spin-up compute. It is incredibly easy to hit the green play button and watch 100 servers boot up in the cloud. It is also incredibly easy to forget those servers are running and get a $10,000 bill over the weekend. Let's configure clusters that are fast, stable, and cost-aware.
+</p>
+
+## The Security Architecture: Control Plane vs. Data Plane
+
+Before you launch a cluster, you must understand where your data actually lives. Databricks separates its architecture into two halves:
+
+1. **The Control Plane (Managed by Databricks):** Lives in Databricks' own cloud account. It contains the web UI, the notebook editor, job scheduling services, and security configurations. No raw customer data ever enters the Control Plane.
+2. **The Data Plane (Managed by YOU):** Lives in your company's AWS, Azure, or GCP account. This is where your VM instances (EC2 or VM nodes) spin up and where your raw data sits inside your S3 or ADLS buckets. 
+
+When you spin up a Databricks cluster, the virtual machines are launched inside *your* cloud account, and they read files directly from *your* cloud storage. Databricks only orchestrates them. This makes it highly secure and compliant.
+
+---
+
+## All-Purpose Clusters vs. Job Clusters
+
+When setting up compute, you have to choose between two main cluster types. Making the wrong choice is the number one cause of runaway cloud bills.
+
+### 1. All-Purpose Clusters (Development)
+These are interactive clusters. You spin them up, connect a notebook, write code, run queries, and debug. 
+* **Cost:** Very high. Databricks charges a premium rate in **DBUs (Databricks Units)** for interactive compute because the nodes are kept running waiting for you to type code.
+* **Usage:** Only use these for writing and testing code.
+
+### 2. Job Clusters (Production)
+These are ephemeral, single-use clusters. 
+* **How it works:** When a scheduled workflow or pipeline starts, Databricks automatically launches a Job Cluster, runs your code, and immediately tears the VMs down when the script finishes.
+* **Cost:** Extremely cheap (typically **40% to 60% less** per DBU than All-Purpose clusters!).
+* **Rule:** **Never run production ETL pipelines on an All-Purpose cluster.** Always schedule them as Databricks Jobs to run on Job clusters.
+
+For details on DBU calculation, see the [Databricks Pricing Guide](https://www.databricks.com/product/pricing).
+
+---
+
+## Driver vs. Workers: The Cluster Topology
+
+Every cluster is organized as a coordinator-worker team.
+
+* **The Driver Node:** This VM is the brain of the cluster. It runs the Spark driver process, translates your SQL or Python code into a execution DAG, coordinates the task distribution, and collects the results.
+* **The Worker Nodes:** These VMs run the Spark executor processes. They do the actual physical work of reading files, doing calculations, and writing output.
+
+> **ELI5:** What is a cluster? Think of it like a project manager (Driver) distributing pieces of a 10-million-piece jigsaw puzzle to 10 workers (Worker Nodes) to solve in parallel. See [ELI5: Database Clusters & Compute](/blog/eli5/cluster) for the full breakdown.
+
+---
+
+## Selecting Node Types
+
+When configuring worker instances in your cloud provider, match the node type to your workload shape:
+
+```text
+Memory-Optimized (ETL, Joins)  <===>  CPU-Optimized (ML, Aggregations)  <===>  Storage-Optimized (Caching)
+```
+
+* **Memory-Optimized (e.g. `r5.xlarge` or `Standard_E4ds_v5`):** If your pipeline does heavy joins, distinct counts, or window functions, you need RAM to prevent data from shuffling to disk. Choose memory-optimized workers.
+* **CPU-Optimized (e.g. `c5.xlarge` or `Standard_F4s_v5`):** If your data is pre-aggregated and you are running CPU-heavy calculations, math transformations, or machine learning models, choose CPU-heavy nodes.
+* **Storage-Optimized (e.g. `i3.xlarge` or `Standard_L4s`):** If you are running queries that read the same files over and over, these nodes have fast local NVMe SSDs that act as a high-speed cache for Delta files.
+
+For cloud VM mapping, see the [Databricks Cluster Configuration Guide](https://docs.databricks.com/en/compute/configure.html).
+
+---
+
+## Best Practices for Cost Control
+
+### 1. Enable Auto-Termination (The Safety Net)
+Always, without exception, configure a strict auto-termination limit on interactive clusters. Set it to **20 minutes** (or 30 max). If you walk away to eat lunch or go home for the weekend, the cluster will automatically shut down, saving your budget.
+
+![Tiger King financially recover meme](/images/memes/tiger-king.png)
+*POV: You forgot to set Auto-Termination and left an All-Purpose development cluster running over a long holiday weekend.*
+
+### 2. Configure Autoscaling Intelligently
+Autoscaling allows Databricks to add workers when workloads are heavy and release them when they are done. 
+* Set a realistic minimum and maximum worker limit (e.g., Min: 2, Max: 8).
+* Avoid setting Min to 0 unless you don't mind waiting 5 minutes for the cluster to boot up when you run a query.
+
+### 3. Use Spot Instances for Workers
+Spot instances (unused cloud capacity) can be up to **80% cheaper** than standard On-Demand instances.
+* **Best Setup:** Use an **On-Demand** instance for the Driver Node (if the driver dies, the whole cluster crashes and you lose work) and **Spot** instances for the Worker Nodes (if a spot worker is reclaimed by AWS, Spark just moves its tasks to another worker).
+
+Now that our workspace compute is configured, we are ready to write tables. In the next part, we'll create our first Delta Tables and master Schema Enforcement.
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/databricks/01-intro" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 1 - Architecture & Delta Lake</a>
+    <a href="/blog/databricks/03-delta-tables" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 3 - Delta Tables & Schema Enforcement &rarr;</a>
+</div>

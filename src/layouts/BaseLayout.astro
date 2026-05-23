@@ -15,7 +15,7 @@ const { title = "Ankur Kelkar – Data & Analytics Engineer" } = Astro.props;
     <title>{title}</title>
     <meta
       name="description"
-      content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, dbt, Python, and Cloud Data Warehousing."
+      content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, Databricks, dbt, Python, and Cloud Data Warehousing."
     />
 
     <!-- Open Graph / Facebook -->
@@ -24,7 +24,7 @@ const { title = "Ankur Kelkar – Data & Analytics Engineer" } = Astro.props;
     <meta property="og:title" content={title} />
     <meta
       property="og:description"
-      content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, dbt, Python, and Cloud Data Warehousing."
+      content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, Databricks, dbt, Python, and Cloud Data Warehousing."
     />
     <meta property="og:image" content="/og-image.png" />
 
@@ -34,7 +34,7 @@ const { title = "Ankur Kelkar – Data & Analytics Engineer" } = Astro.props;
     <meta property="twitter:title" content={title} />
     <meta
       property="twitter:description"
-      content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, dbt, Python, and Cloud Data Warehousing."
+      content="Ankur Kelkar - Data Engineer & Analytics Architect. Expert in Snowflake, Databricks, dbt, Python, and Cloud Data Warehousing."
     />
     <meta property="twitter:image" content="/og-image.png" />
 
@@ -47,25 +47,24 @@ const { title = "Ankur Kelkar – Data & Analytics Engineer" } = Astro.props;
     />
   </head>
   <body
-    class="bg-gradient-to-br from-[#120026] via-[#0f172a] to-[#2a003f] text-gray-100 antialiased flex flex-col min-h-screen"
+    class="bg-[#0b031e] text-slate-100 antialiased flex flex-col min-h-screen"
   >
-    <Header />
-    <main class="flex-grow">
+    <div class="no-print">
+      <Header />
+    </div>
+    <main class="flex-grow relative z-10">
+      <!-- Background mesh grid -->
       <div
-        class="fixed inset-0 opacity-20 bg-[url('/grid.svg')] animate-pulse bg-repeat bg-center"
-      >
-      </div>
-      <div
-        class="absolute inset-0 bg-gradient-to-tr from-black-900/30 via-transparent to-pink-900/30"
+        class="fixed inset-0 opacity-15 bg-[url('/grid.svg')] bg-repeat bg-center pointer-events-none no-print"
       >
       </div>
       <slot />
     </main>
-    <footer class="bg-[#181026]/70 backdrop-blur-sm py-6 mt-12">
+    <footer class="bg-[#090315]/80 border-t border-white/5 py-8 no-print">
       <div
-        class="container mx-auto px-4 text-center text-xs text-gray-500 tracking-wider"
+        class="container mx-auto px-4 text-center text-sm text-gray-500 tracking-wider"
       >
-        © {new Date().getFullYear()} Ankur Kelkar · Powered by Astro + Tailwind
+        © {new Date().getFullYear()} Ankur Kelkar · Powered by Astro + Tailwind v4
       </div>
     </footer>
   </body>

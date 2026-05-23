@@ -1,0 +1,29 @@
+---
+title: "ELI5: OLAP (Online Analytical Processing)"
+date: 2023-10-01
+description: "The difference between scanning a grocery item and calculating the grocery chain's annual revenue."
+tags: ["ELI5", "OLAP", "Databases"]
+draft: false
+---
+
+Imagine you own a busy supermarket. To run this supermarket, you need to handle two very different types of questions.
+
+### 1. The Cashier's Job (OLTP - Online Transaction Processing)
+When a customer comes to the checkout, the cashier scans a bar of soap. The database needs to do three quick things:
+1. Check if the soap is in stock.
+2. Deduct 1 from the inventory count.
+3. Record that Transaction #987654 bought 1 soap for $2.99.
+
+This is a transactional workload (OLTP). It involves reading or updating a single row or a few rows very quickly. You care about write speed, row-level safety, and keeping the line moving. Databases like PostgreSQL, MySQL, and SQLite are masters of this.
+
+### 2. The Regional Manager's Job (OLAP - Online Analytical Processing)
+Now, imagine you're the regional manager. You don't care about Transaction #987654. You sit in a corporate office and ask: 
+**"What was our highest-margin product category on rainy Tuesdays in the Midwest over the last five years, and how does it compare to sunny Thursdays?"**
+
+To answer this, you can't ask a cashier database. You have to scan hundreds of millions of historical transactions, group them by category, join them with weather data, and calculate aggregates. 
+
+This is an analytical workload (OLAP). You're querying millions or billions of rows, but only looking at a few columns (like `date`, `category`, `price`, and `location`). 
+
+**OLAP** databases (like [ClickHouse](https://clickhouse.com/docs/en/intro) and [Databricks Delta Lake](https://docs.databricks.com/en/introduction/index.html)) are designed specifically for these massive, scanning queries. They trade away the ability to do fast single-row updates so they can scan billions of rows per second to answer your big-picture business questions.
+
+Learn more about OLAP engines in [ClickHouse: Part 1 - Introduction & Architecture](/blog/clickhouse/01-intro).

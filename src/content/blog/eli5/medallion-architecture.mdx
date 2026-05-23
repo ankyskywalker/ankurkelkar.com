@@ -1,0 +1,34 @@
+---
+title: "ELI5: The Medallion Architecture"
+date: 2023-10-04
+description: "Why data engineering is like running a water purification plant."
+tags: ["ELI5", "Medallion Architecture", "Databricks", "Data Modeling"]
+draft: false
+---
+
+Imagine you run a water bottling company. You can't just stick a pipe into a muddy river, pump it directly into bottles, and sell it to customers. People will get sick, and you will go to jail. 
+
+Instead, you build a three-stage purification system:
+
+```
+[ River Water ] ===> [ Bronze: Raw Holding Tank ] ===> [ Silver: Filtered Tap Water ] ===> [ Gold: Premium Mineral Water ]
+```
+
+This is exactly how the **Medallion Architecture** works in a Lakehouse. It divides your data pipeline into three layers: Bronze, Silver, and Gold.
+
+### 1. The Bronze Layer: Raw Holding Tank
+This is where the raw river water goes. You pump everything in as-is: mud, leaves, fish, and all. 
+In data terms, this is your raw, unstructured data directly from source systems (APIs, logs, databases). You don't clean it, you don't validate it, and you never delete it. If something goes wrong later, you can always go back to the Bronze tank and re-run your purification.
+
+### 2. The Silver Layer: Filtered Tap Water
+You take the water from the Bronze tank, run it through physical filters, kill the bacteria, and clean out the debris. Now it's clean, safe, and drinkable, but it’s not fancy.
+In data terms, you take the Bronze data, clean it up (fix date formats, remove duplicates, filter out corrupted records, enforce schemas), and structure it into clean, queryable tables. This is the main playground for data scientists and analysts.
+
+### 3. The Gold Layer: Premium Bottled Water
+You take the clean Silver water, add electrolytes for taste, carbonate it, and bottle it in premium glass containers for the boardroom.
+In data terms, this is your business-level aggregated data. You pre-calculate metrics (e.g., daily active users, monthly revenue by region) and format them specifically for business dashboards, reports, and executives who just want answers, not raw files.
+
+By dividing your data pipeline this way, you ensure that raw data is safely preserved, cleaned systematically, and presented reliably.
+
+Read how to implement this architecture in [Databricks Lakehouse: Part 4 - Medallion Architecture](/blog/databricks/04-data-modeling).
+For more context, see the [Databricks Medallion Architecture Guide](https://www.databricks.com/glossary/medallion-architecture).

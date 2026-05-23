@@ -1,0 +1,24 @@
+---
+title: "ELI5: Database Clusters & Compute"
+date: 2023-10-02
+description: "Why solving a massive puzzle is faster when you hire a team and a manager."
+tags: ["ELI5", "Compute", "Clusters", "Databricks"]
+draft: false
+---
+
+Imagine you have a giant box containing a **10-million-piece jigsaw puzzle**. 
+
+If you sit down at a table alone, it will take you years to solve it. Your brain is only so fast, and you only have two hands. This is like trying to run a massive data query on a single laptop.
+
+To get it done faster, you hire a team:
+
+1. **The Project Manager (Driver Node):** You hire one coordinator. This person doesn't actually put puzzle pieces together. Instead, they look at the big picture, divide the puzzle into 10 sections, distribute the pieces to the workers, and keep track of who is doing what. When the workers finish their sections, the manager aggregates them and presents the completed puzzle to you.
+2. **The Workers (Worker Nodes):** You hire 10 workers and put them at separate tables. Each worker receives their slice of puzzle pieces, matches them together as fast as they can, and hands the finished chunks back to the manager.
+3. **Scaling (Adding Workers):** If the deadline is moved up, the manager can hire 10 more workers (scaling out) to get the puzzle done in half the time. If the workers are sitting idle because there's no work, the manager fires them (autoscaling down) to save money.
+
+This team of a Manager (Driver) and Workers is a **Cluster**. 
+
+In Databricks and Spark, when you run a query, the Driver Node parses your SQL, breaks it into smaller tasks, sends those tasks to the Worker Nodes to process in parallel, and then collects the results.
+
+Learn how to configure your clusters without burning through your budget in [Databricks Lakehouse: Part 2 - Workspace & Cluster Setup](/blog/databricks/02-workspace-compute).
+For official guidelines, see the [Databricks Compute Documentation](https://docs.databricks.com/en/compute/index.html).

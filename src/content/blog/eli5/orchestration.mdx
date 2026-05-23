@@ -1,0 +1,30 @@
+---
+title: "ELI5: Workflow Orchestration"
+date: 2023-10-10
+description: "Why running a data pipeline is like directing a massive theatrical play."
+tags: ["ELI5", "Orchestration", "Workflows", "Databricks"]
+draft: false
+---
+
+Imagine you are the director of a broadway play. 
+
+You have actors, lighting techs, set designers, and musicians. If they all run onto the stage and do whatever they want whenever they feel like it, the show will be a disaster. The lighting tech will turn off the lights before the actors walk out, and the musicians will play the finale during the opening monologue.
+
+To prevent this, you use a **script** and **cues** to coordinate (orchestrate) the show:
+
+1. **Step-by-Step Order (Dependencies):** "First, the set designers build the stage (Task A). Once they are done, the actors walk out (Task B). Only when the actors are in position do the lights turn on (Task C)."
+2. **Conditional Logic:** "If the lead actor gets sick (Task B fails), immediately run the backup plan: call the understudy and notify the stage manager (Error handling)."
+3. **Timing (Scheduling):** "The curtain rises at exactly 8:00 PM every night (Cron scheduling)."
+
+In data engineering, **Workflow Orchestration** is the director of your data pipelines. 
+
+You don't just run one query. You need to:
+1. Ingest raw log files from S3 (Task 1).
+2. Clean them and update the users table (Task 2, depends on Task 1).
+3. Refresh the sales dashboard (Task 3, depends on Task 2).
+4. Train the ML recommendation model (Task 4, depends on Task 2).
+
+If Task 1 fails, you don't want to run Task 3 with empty data. The orchestrator manages these dependencies, starts tasks at the right time, stops execution if something breaks, and sends you an email or Slack message when things go wrong.
+
+To learn how to configure these DAGs (Directed Acyclic Graphs) in Databricks, read [Databricks Lakehouse: Part 10 - Orchestrating Workflows](/blog/databricks/10-workflows).
+For official scheduling guidelines, read the [Databricks Workflows Docs](https://docs.databricks.com/en/workflows/index.html).

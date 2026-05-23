@@ -1,0 +1,120 @@
+---
+title: "Part 7: Delta Live Tables Pipelines"
+date: 2023-10-17
+description: "Building self-healing, declarative ETL pipelines using Delta Live Tables and Expectations."
+tags: ["Databricks", "DLT", "Pipelines", "Data Quality"]
+part: "Part 7 of 10"
+cover: "../../../assets/images/databricks/part-7.png"
+draft: false
+---
+
+<p class="lead text-xl text-gray-300 mb-8">
+    Managing traditional Spark pipelines requires writing a lot of glue code: you have to manage write checkpoints, write custom code to handle schema changes, construct dependencies between tables, and figure out why a job crashed. Delta Live Tables (DLT) sweeps this away by letting you declare your tables and quality rules, while the runtime handles the rest.
+</p>
+
+## What is Delta Live Tables?
+
+[Delta Live Tables (DLT)](https://docs.databricks.com/en/delta-live-tables/index.html) is a declarative framework for building reliable data pipelines. 
+
+In traditional ETL, you write **imperative** code: "Read file A, do transform B, write to path C, manage checkpoint folder D." 
+
+In DLT, you write **declarative** code: "I want Table B to exist, and it should read from Table A using this cleaning logic." 
+
+The DLT runtime automatically constructs a **Directed Acyclic Graph (DAG)** of your pipeline, manages infrastructure scaling, determines the order of table execution, handles checkpoint directories, and monitors data quality.
+
+> **ELI5:** What is Delta Live Tables? Think of the difference between manually constructing a complex factory conveyor belt system and just providing a blueprint that says: "Clean parts enter here, get painted at station B, and land in warehouse C." The automation system handles the rest. See [ELI5: Delta Live Tables (DLT)](/blog/eli5/delta-live-tables) for the full breakdown.
+
+---
+
+## DLT Table Types: Streaming Tables vs. Materialized Views
+
+Inside DLT, you define tables using annotations. There are two primary types:
+
+1. **Streaming Tables (`dlt.table` + readStream):** Designed for incremental, append-only data ingestion. It only reads new data since the last run. Best for Bronze ingestion.
+2. **Materialized Views (`dlt.table` + read):** Represents a view over the current state of a source table. It recalculates aggregate results as the source table changes. Best for Silver and Gold tables.
+
+---
+
+## Data Quality: Expectations
+
+The killer feature of DLT is **Expectations**. These are declarative data validation rules that you apply to columns. If a row violates the expectation, DLT takes action based on your configuration:
+
+* **`expect(condition)` (Warn):** Logs the violation count but allows the row to pass through.
+* **`expect_or_drop(condition)` (Drop Row):** Silently drops the offending row from the target table while logging the drop event.
+* **`expect_or_fail(condition)` (Fail Update):** Aborts the entire pipeline run immediately if a single row violates the rule.
+
+![Tiger King DLT Continuous billing meme](/images/memes/tiger-king.png)
+*POV: You set a Delta Live Tables pipeline to run in Continuous mode on a large production cluster for an ad-hoc test, and then went on a 3-week vacation.*
+
+---
+
+## Python Implementation: A Complete DLT Pipeline
+
+Let's build a Medallion pipeline (Bronze -> Silver) with expectations using Python. Create a script called `dlt_pipeline.py`:
+
+```python
+import dlt
+from pyspark.sql.functions import col, current_timestamp
+
+# 1. BRONZE LAYER: Ingest raw JSON from cloud storage using Auto Loader
+@dlt.table(
+    name="orders_bronze",
+    comment="Raw ingested e-commerce orders from S3"
+)
+def orders_bronze():
+    return spark.readStream.format("cloudFiles") \
+        .option("cloudFiles.format", "json") \
+        .load("s3://my-company-bucket/raw/orders/")
+
+# 2. SILVER LAYER: Clean and validate orders
+@dlt.table(
+    name="orders_silver",
+    comment="Cleaned and validated orders with data quality constraints"
+)
+# Apply expectations to protect the table from corrupt data
+@dlt.expect_or_drop("valid_order_id", "order_id IS NOT NULL")
+@dlt.expect_or_drop("positive_price", "price > 0")
+@dlt.expect("recent_transactions", "order_date >= '2020-01-01'")
+def orders_silver():
+    return dlt.read_stream("orders_bronze") \
+        .select(
+            col("order_id").cast("int"),
+            col("customer_id").cast("int"),
+            col("order_date").cast("date"),
+            col("product_sku").alias("sku"),
+            col("price").cast("double"),
+            col("quantity").cast("int"),
+            current_timestamp().alias("processed_time")
+        )
+```
+
+### Key Differences from Standard PySpark:
+* **Imports:** We import `dlt` which is only available inside the DLT runtime.
+* **Decorators:** `@dlt.table` declares the target table name and description.
+* **Reading:** We read from the Bronze table using `dlt.read_stream("orders_bronze")` instead of `spark.readStream`. DLT uses this name to build the dependency tree.
+
+---
+
+## The Lineage and Monitoring UI
+
+When you run this script in the Databricks DLT UI:
+1. It spins up a cluster automatically.
+2. It compiles the script and shows a beautiful **Lineage Graph** (Bronze node -> Silver node).
+3. It displays real-time statistics: how many rows are being processed per second.
+4. It graphs the **Data Quality Metrics**: what percentage of rows passed, warned, or were dropped by your expectations.
+
+```text
+[ orders_bronze ] ──( 10,000 rows )──► [ orders_silver ]
+                                       ▲ 9,950 passed
+                                       ▼ 50 dropped (invalid_order_id)
+```
+
+This UI makes tracing data lineage and identifying pipeline bottlenecks incredibly simple.
+For advanced configuration options, see the [Databricks Delta Live Tables Developer Reference](https://docs.databricks.com/en/delta-live-tables/index.html).
+
+Now that we are building pipelines, we need to govern who can read the data. In the next part, we'll configure security and access control using Unity Catalog.
+
+<div class="flex justify-between mt-12 pt-8 border-t border-gray-700">
+    <a href="/blog/databricks/06-spark-sql" class="text-pink-400 hover:text-pink-300 font-bold">&larr; Part 6 - Spark SQL Optimization</a>
+    <a href="/blog/databricks/08-unity-catalog" class="text-pink-400 hover:text-pink-300 font-bold">Next: Part 8 - Unity Catalog & Governance &rarr;</a>
+</div>
