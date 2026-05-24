@@ -1,23 +1,22 @@
 ---
 import { getCollection } from "astro:content";
-import BlogLayout from "../../../layouts/BlogLayout.astro";
+import BlogLayout from "../../layouts/BlogLayout.astro";
 import { Image } from "astro:assets";
 
 export async function getStaticPaths() {
     const blogEntries = await getCollection("blog");
-    // Filter for clickhouse posts
-    const clickhouseEntries = blogEntries.filter((entry) =>
-        entry.slug.startsWith("clickhouse/"),
-    );
-
-    return clickhouseEntries.map((entry) => ({
-        params: { slug: entry.slug.replace("clickhouse/", "") },
+    return blogEntries.map((entry) => ({
+        params: { slug: entry.slug },
         props: { entry },
     }));
 }
 
 const { entry } = Astro.props;
 const { Content } = await entry.render();
+
+// Calculate read time dynamically (assumes average 200 words per minute reading speed)
+const wordCount = entry.body ? entry.body.split(/\s+/).filter(Boolean).length : 0;
+const readTime = `${Math.max(1, Math.ceil(wordCount / 200))} min read`;
 ---
 
 <BlogLayout
@@ -26,7 +25,7 @@ const { Content } = await entry.render();
     description={entry.data.description}
     tags={entry.data.tags}
     part={entry.data.part}
-    readTime="10 min read"
+    readTime={readTime}
 >
     <div class="prose-content">
         {
@@ -34,6 +33,8 @@ const { Content } = await entry.render();
                 <Image
                     src={entry.data.cover}
                     alt={entry.data.title}
+                    loading="eager"
+                    fetchpriority="high"
                     class="w-full h-64 object-cover rounded-xl mb-8 shadow-2xl"
                 />
             )
