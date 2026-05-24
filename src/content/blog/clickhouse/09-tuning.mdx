@@ -42,7 +42,7 @@ To prevent this, you can add a **Data Skipping Index** (also known as a secondar
 
 Unlike primary keys, which sort the data, skipping index files store aggregated information about column values for each **Mark Range** (every 8,192 rows). When a query runs, ClickHouse checks the skipping index file to see if the search term exists in that mark range. If it doesn't, it skips reading the corresponding data blocks.
 
-![Distracted Boyfriend Skipping Index](/images/memes/distracted-boyfriend.jpg)
+![Distracted Boyfriend Skipping Index](https://api.memegen.link/images/db.jpg)
 *Data engineers choosing bloom_filter skipping indexes over doing full table scans on high-cardinality text columns.*
 
 ### The Three Index Types:

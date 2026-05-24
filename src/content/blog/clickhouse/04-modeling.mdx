@@ -30,7 +30,7 @@ ClickHouse's design philosophy is simple: **disk space is cheap, CPU cycles are 
 
 Therefore, you should denormalize your tables. Put the customer’s country, name, and product category directly into the `orders` table at ingestion time. Yes, you will write duplicate strings millions of times, but ClickHouse’s compression will compress those duplicate values down to next to nothing, and your queries will scan a single table without touching the network.
 
-![Distracted Boyfriend Denormalization](/images/memes/distracted-boyfriend.jpg)
+![Distracted Boyfriend Denormalization](https://api.memegen.link/images/db.jpg)
 *Data engineers looking at a single 200-column flat table while their normalization textbook screams in horror.*
 
 ---

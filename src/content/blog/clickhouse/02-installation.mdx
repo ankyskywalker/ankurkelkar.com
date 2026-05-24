@@ -27,7 +27,7 @@ clickhouse      soft    memlock     unlimited
 clickhouse      hard    memlock     unlimited
 ```
 
-![Boromir limits.conf meme](/images/memes/boromir.jpg)
+![Boromir limits.conf meme](https://api.memegen.link/images/mordor.jpg)
 *One does not simply run ClickHouse in production with standard Linux default limits.*
 
 Additionally, disable **Transparent Huge Pages (THP)**. While THP is great for some databases, it causes memory fragmentation and unpredictable latency spikes in ClickHouse. Run this to check:
