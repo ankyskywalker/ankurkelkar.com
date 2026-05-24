@@ -16,6 +16,8 @@ export default defineConfig({
   },
 
   site: 'https://ankurkelkar.com',
-  adapter: cloudflare(),
+  adapter: cloudflare({
+    imageService: 'compile'
+  }),
   integrations: [mdx(), sitemap()]
 });

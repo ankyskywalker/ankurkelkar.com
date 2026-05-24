@@ -58,6 +58,7 @@ const isActive = (path: string) => {
       id="mobile-menu-toggle"
       class="md:hidden text-gray-300 hover:text-white focus:outline-none p-1.5"
       aria-label="Toggle mobile menu"
+      aria-expanded="false"
     >
       <svg
         id="hamburger-icon"
@@ -129,10 +130,12 @@ const isActive = (path: string) => {
         mobileMenu.classList.remove("hidden");
         hamburgerIcon.classList.add("hidden");
         closeIcon.classList.remove("hidden");
+        toggleBtn.setAttribute("aria-expanded", "true");
       } else {
         mobileMenu.classList.add("hidden");
         hamburgerIcon.classList.remove("hidden");
         closeIcon.classList.add("hidden");
+        toggleBtn.setAttribute("aria-expanded", "false");
       }
     });
   }
