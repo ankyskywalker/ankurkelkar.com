@@ -131,7 +131,7 @@ CREATE MATERIALIZED VIEW my_mv POPULATE TO my_target AS SELECT ...
 * If your source table has billions of rows, the creation query will run for hours, consume all your RAM, and likely fail or lock up your database.
 * Any data inserted into the source table *while* the populate query is running might not be processed, leading to data loss.
 
-![Tiger King POPULATE meme](/images/memes/tiger-king.png)
+![Tiger King POPULATE meme](https://i.imgflip.com/52mrq5.png)
 *POV: You clicked run on a CREATE MATERIALIZED VIEW POPULATE statement on a production table with 5 billion rows.*
 
 ### The Safe Backfill Pattern:

@@ -22,7 +22,7 @@ ClickHouse does not use B-Trees. It uses a **Sparse Index**.
 
 Instead of pointing to individual rows, the primary key in ClickHouse sorts the data on disk and creates an index entry only once every **8,192 rows** (this block is called a **Mark Range**).
 
-![Pam's "They're the same picture" meme](/images/memes/same-picture.jpg)
+![Pam's "They're the same picture" meme](https://api.memegen.link/images/same.jpg)
 *Data engineers showing their DBAs a ClickHouse primary key vs a Postgres primary key. "It's the same name, but one doesn't eat all your RAM for breakfast."*
 
 > **ELI5:** What is index granularity and sparse indexing? Imagine sorting letters into bundles instead of filing them one by one. Check out [ELI5: The MergeTree Engine](/blog/eli5/mergetree) for the full analogy.

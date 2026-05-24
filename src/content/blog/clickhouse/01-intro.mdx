@@ -46,7 +46,7 @@ File 5 (Balance): [150.00, 80.00, 210.00]
 ```
 Now, when you run `SELECT AVG(Age) FROM users`, ClickHouse bypasses Files 1, 2, 4, and 5 entirely. It opens File 3, streams the integers straight to the CPU, and returns the result. You read exactly what you need—nothing more.
 
-![Distracted Boyfriend Columnar Storage](/images/memes/distracted-boyfriend.jpg)
+![Distracted Boyfriend Columnar Storage](https://api.memegen.link/images/db.jpg)
 *Data engineers when they discover columnar storage formats and say goodbye to waiting 40 minutes for simple aggregates.*
 
 > **ELI5:** How does columnar storage work? Imagine tearing the "Age" column out of a spreadsheet and throwing the rest of the sheet in the shredder. Check out [ELI5: Columnar Storage](/blog/eli5/columnar-storage) for a funny analogy.
